@@ -14,14 +14,12 @@ const testConnection = async () => {
    try {
       const [rows] = await pool.query("SELECT NOW() AS NOW");
       console.log(rows[0].NOW);
-      
+
    } catch (error) {
       console.error("DB ERROR:", error);
       throw new Error(error.message);
    }
 };
-
-testConnection();
 
 export default {
    pool,
