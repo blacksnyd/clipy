@@ -14,7 +14,7 @@ USING clipy_db CREATE TABLE categories (
    title varchar(100)
 );
 
-USING clipy_db CREATE TABLE rating (
+USING clipy_db CREATE TABLE ratings (
    id NOT NULL AUTO_INCREMENT PRIMARY KEY,
    value int,
    video_id FOREIGN KEY,
