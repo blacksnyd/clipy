@@ -7,10 +7,10 @@ dotenv.config();
 const PORT = process.env.PORT;
 
 if(!PORT){
-    console.log('PORT absent veuillez remplir le .env');
+    console.log('PORT variable missing');
     process.exit(1);
 }
 
 app.listen(PORT, ()=>{
-    console.log(`Serveur lancé sur le port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
