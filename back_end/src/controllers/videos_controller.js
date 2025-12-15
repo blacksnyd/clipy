@@ -16,6 +16,10 @@ export const all = async (req,res) => {
     });
   }
 }
-export const create = async (req,res) => {
-  console.log("test post");
+export const show = async (req,res) => {
+  const {id} = req.params;
+
+  const [rows] = await db.pool.execute('SELECT * FROM videos WHERE id = ?', [id]);
+
+  console.log(rows);
 }
