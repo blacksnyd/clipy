@@ -1,7 +1,7 @@
 CREATE DATABASE clipy_db;
 
 CREATE TABLE videos (
-   id NOT NULL AUTO_INCREMENT PRIMARY KEY,
+   id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
    title varchar(150) NOT NULL,
    URL varchar(500) NOT NULL,
    duration int NOT NULL,
@@ -10,18 +10,18 @@ CREATE TABLE videos (
 );
 
 CREATE TABLE categories (
-   id NOT NULL AUTO_INCREMENT PRIMARY KEY,
+   id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
    title varchar(100)
 );
 
 CREATE TABLE ratings (
-   id NOT NULL AUTO_INCREMENT PRIMARY KEY,
+   id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
    value int,
    video_id FOREIGN KEY,
 ); 
 
 CREATE TABLE comments (
-   id NOT NULL AUTO_INCREMENT PRIMARY KEY,
+   id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
    content text,
    video_id FOREIGN KEY,
 );
