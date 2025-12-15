@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import {all} from '../controllers/categories.controller.js';
+import {all} from '../controllers/categories_controller.js';
 
 const router = Router();
 
