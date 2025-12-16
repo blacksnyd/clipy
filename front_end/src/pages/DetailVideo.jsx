@@ -15,11 +15,11 @@ const DetailVideo = () => {
   }, [allRatings]);
 
   return (
-    <div className="bg-slate-50  py-10">
-      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 lg:flex-row">
+    <div className="flex flex-1 items-stretch bg-slate-50">
+      <div className="mx-auto grid w-full max-w-6xl flex-1 gap-8 px-4 py-8 lg:grid-cols-[2fr_1fr]">
         {/* Zone vidéo */}
-        <div className="flex-1 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
-          <div className="aspect-video w-full bg-slate-200">
+        <div className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+          
             <iframe
               className="h-full w-full"
               src="https://www.youtube.com/embed/jOQNpF5itew"
@@ -28,11 +28,11 @@ const DetailVideo = () => {
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
-          </div>
+          
         </div>
 
         {/* Détails */}
-        <div className="flex w-full max-w-xl flex-col gap-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <div className="flex h-full w-full flex-col gap-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-sm uppercase tracking-wide text-slate-500">
