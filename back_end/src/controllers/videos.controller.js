@@ -101,11 +101,18 @@ export const deleteVideo = async (req, res) => {
   }
 }
 export const create = async (req,res) => {
-  const video_url = `uploads/videos/${req.file.filename}`
-  try {
+  console.log(req.file);
+  const video_file = req.files?.video?.[0];
+  const cover_file = req.files?.cover?.[0];
+
+  const video_url = `uploads/videos/${video_file.filename}`;
+  const cover_url = `uploads/covers/${cover_file.filename}`;
+
+  console.log(cover_file);
+try {
     const duration = await getVideoDurationInSeconds(video_url);
     const duration_rounded = Math.ceil(duration);
-    const video = await videosService.create(req.body, video_url, duration_rounded);
+    const video = await videosService.create(req.body, video_url, cover_url, duration_rounded);
     res.status(201).json({
       success: true,
       message: "Vidéo ajoutée avec succès",
