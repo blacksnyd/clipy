@@ -13,6 +13,25 @@ const findById = async (id) => {
   return rows[0];
 };
 
+const findByTitle = async (title) => {
+
+  const [rows] = await db.pool.execute(
+    "SELECT * FROM videos WHERE title LIKE ? ORDER BY title ASC",
+    [`%${title}%`]
+  );
+  return rows;
+  
+};
+
+const findByCategory = async (category_id) => {
+
+  const [rows] = await db.pool.execute(
+    "SELECT * FROM videos WHERE category_id = ?",
+    [category_id]
+  );
+  return rows;
+};
+
 const update = async (id, videoData) => {
   const { title, URL, duration, description, category_id } = videoData;
 
@@ -38,4 +57,4 @@ const destroy =  async (id) => {
 
 
 
-export default {findAll, findById, update, destroy}
+export default {findAll, findById, findByTitle, findByCategory, update, destroy}
