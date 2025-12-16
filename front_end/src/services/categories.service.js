@@ -1,4 +1,4 @@
-import { request } from './http-Client.service';
+import { request } from 'http-client.service.js';
 
 export const getAllCategories = () => request("/categories");
     
