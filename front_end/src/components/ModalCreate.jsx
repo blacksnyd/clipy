@@ -88,7 +88,7 @@ function ModalCreate({ onClose = null }) {
 
   return (
     <Form
-      title="Poster une vidéo"
+      title="Importer une vidéo"
       formData={formData}
       categories={categories}
       error={error}
