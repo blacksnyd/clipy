@@ -1,12 +1,14 @@
 import { Router } from 'express';
 
-import {all, create} from '../controllers/videos_controller.js';
+import {all, create, deleteVideo, updateVideo} from '../controllers/videos_controller.js';
 
 const router = Router();
 
 
 router.get('/', all);
 router.post('/', create);
+router.put('/:id', updateVideo)
+router.delete('/:id', deleteVideo)
 
 
 
