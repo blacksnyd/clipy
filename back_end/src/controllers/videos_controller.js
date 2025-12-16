@@ -49,9 +49,7 @@ export const show = async (req, res) => {
     });
   }
 };
-import { success } from "zod";
 
-}
 export const updateVideo = async (req,res) => {
   // console.log("test update");
   try {
