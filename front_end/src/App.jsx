@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
+import Modal from './components/Modal'
 import DetailVideo from './pages/DetailVideo'
 import Homepage from './pages/Homepage'
 
@@ -57,11 +58,27 @@ function App() {
       <Header onOpenModal={handleOpenModal} />
       <main className="flex-1">
         <Routes>
-          <Route path="/" element={<Homepage videos={videoSamples} isModalOpen={isModalOpen} onCloseModal={handleCloseModal} />} />
+          <Route path="/" element={<Homepage videos={videoSamples} />} />
           <Route path="/video/:id" element={<DetailVideo />} />
         </Routes>
       </main>
       <Footer />
+      
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="relative mx-4 w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl">
+            <button
+              onClick={handleCloseModal}
+              className="absolute right-4 top-4 text-slate-400 hover:text-slate-600"
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <Modal videoId={null} onClose={handleCloseModal} />
+          </div>
+        </div>
+      )}
     </>
   )
 }
