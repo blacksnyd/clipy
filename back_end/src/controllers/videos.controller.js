@@ -1,5 +1,5 @@
 import db from "../config/db_pool.js";
-import videosService from '../services/videos_service.js';
+import videosService from '../services/videos.service.js';
 import {getVideoDurationInSeconds} from 'get-video-duration';
 
 export const all = async (req, res) => {
