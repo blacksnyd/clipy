@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import upload from '../middlewares/upload.js';
+import upload from '../middlewares/upload_video.js';
 
 import {all, show, create, deleteVideo, updateVideo} from '../controllers/videos_controller.js';
 

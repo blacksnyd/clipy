@@ -1,10 +1,11 @@
 # Dépendances
 node_modules/
 
+upload/videos/*
+
 # Fichiers d'environnement
 .env
 
 # Logs
 logs/
 *.log
-
