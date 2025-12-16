@@ -52,7 +52,7 @@ export const deleteVideo = async (req, res) => {
       [id]
     );
     //renvoie une response avec le message
-    return res.status(200).json({
+    return res.status(204).json({
       success: true, 
       message:"Vidéo bien supprimée",
     });
