@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { createComment, deleteComment, findCommentsByVideo } from '../controllers/comments_controller.js';
+import { createComment, deleteComment, findCommentsByVideo } from '../controllers/comments.controller.js';
 
 const router = Router();
 

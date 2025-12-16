@@ -12,7 +12,7 @@ const deleteComment = async (id) => {
    const [result] = await db.pool.execute(
     'DELETE FROM comments WHERE id = ?',
     [id]
-   );
+   );gi
    return result.affectedRows;
 }
 

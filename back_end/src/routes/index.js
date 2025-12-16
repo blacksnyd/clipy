@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import categoriesRoutes from './categories.routes.js';
 import videosRoutes from './videos.routes.js';
+import commentsRoutes from './comments.routes.js';
 
 const router = Router();
 
