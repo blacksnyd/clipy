@@ -9,11 +9,13 @@ function App() {
   return (
     <>
       <Header />
-      <Routes>
-        <Route path="/" element={<DetailVideo />} />
-        {/* <Route path="/" element={<Homepage />} />
-        <Route path="/video/:id" element={<VideoPage />} /> */}
-      </Routes>
+      <main className="flex-1">
+        <Routes>
+          <Route path="/" element={<DetailVideo />} />
+          {/* <Route path="/" element={<Homepage />} />
+          <Route path="/video/:id" element={<VideoPage />} /> */}
+        </Routes>
+      </main>
       <Footer />
     </>
   )

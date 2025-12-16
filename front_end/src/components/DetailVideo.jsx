@@ -1,27 +1,32 @@
-import React, { useMemo, useState } from 'react'
-import { Rating } from '@smastrom/react-rating'
+import React, { useMemo, useState } from 'react';
+import { Rating } from '@smastrom/react-rating';
 
 const DetailVideo = () => {
-  // Exemple de notes existantes (à remplacer par les données du backend)
-  const allRatings = [4, 5, 3, 4, 5]
-  const [rating, setRating] = useState(0)
+  // A remplacer par le fetch
+  const allRatings = [4, 5, 3, 4, 5];
+
+  const [rating, setRating] = useState(0);
 
   const average = useMemo(() => {
-    if (!allRatings.length) return 0
-    const mean = allRatings.reduce((sum, value) => sum + value, 0) / allRatings.length
-    return Number(mean.toFixed(1))
-  }, [allRatings])
+    if (!allRatings.length) return 0;
+    const mean =
+      allRatings.reduce((sum, value) => sum + value, 0) / allRatings.length;
+    return Number(mean.toFixed(1));
+  }, [allRatings]);
 
   return (
-    <div className="bg-slate-50 min-h-screen py-10">
+    <div className="bg-slate-50  py-10">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 lg:flex-row">
         {/* Zone vidéo */}
         <div className="flex-1 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
           <div className="aspect-video w-full bg-slate-200">
-            <img
-              src="https://via.placeholder.com/1280x720"
-              alt="Video Thumbnail"
-              className="h-full w-full object-cover"
+            <iframe
+              className="h-full w-full"
+              src="https://www.youtube.com/embed/jOQNpF5itew"
+              title="YouTube video player"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
             />
           </div>
         </div>
@@ -30,8 +35,12 @@ const DetailVideo = () => {
         <div className="flex w-full max-w-xl flex-col gap-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-sm uppercase tracking-wide text-slate-500">Vidéo</p>
-              <h1 className="text-2xl font-semibold text-slate-900">Titre de la vidéo</h1>
+              <p className="text-sm uppercase tracking-wide text-slate-500">
+                Vidéo
+              </p>
+              <h1 className="text-2xl font-semibold text-slate-900">
+                Titre de la vidéo
+              </h1>
             </div>
             <span className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">
               {average} / 5
@@ -39,8 +48,7 @@ const DetailVideo = () => {
           </div>
 
           <p className="text-base text-slate-700 leading-relaxed">
-            Description de la vidéo. Remplace ce texte par le descriptif détaillé ou la
-            transcription. Ajoute ici les informations importantes (catégorie, durée, tags).
+            Description de la vidéo.
           </p>
 
           <div className="flex flex-col gap-3 rounded-xl bg-slate-50 p-4">
@@ -51,10 +59,13 @@ const DetailVideo = () => {
                 onChange={setRating}
                 items={5}
               />
-              <span className="text-sm text-slate-700">Ta note : {rating || '-'} / 5</span>
+              <span className="text-sm text-slate-700">
+                Ta note : {rating || '-'} / 5
+              </span>
             </div>
             <p className="text-sm text-slate-700">
-              Note moyenne : <span className="font-semibold">{average}</span> / 5
+              Note moyenne : <span className="font-semibold">{average}</span> /
+              5
             </p>
           </div>
 
@@ -66,7 +77,7 @@ const DetailVideo = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default DetailVideo
+export default DetailVideo;
