@@ -101,6 +101,7 @@ export const deleteVideo = async (req, res) => {
 }
 export const create = async (req,res) => {
   try {
+    console.log("create endpoint");
 
   } catch (error) {
 

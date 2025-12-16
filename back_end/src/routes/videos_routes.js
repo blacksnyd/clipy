@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import upload from '../middlewares/upload_video.js';
 
-import {all, show, deleteVideo, updateVideo} from '../controllers/videos_controller.js';
+import {all, show, create, deleteVideo, updateVideo} from '../controllers/videos_controller.js';
 
 const router = Router();
 
