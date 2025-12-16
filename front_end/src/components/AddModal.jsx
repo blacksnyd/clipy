@@ -1,4 +1,5 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { getAllCategories } from '../services/categories.service'
 
 function AddModal() {
     
@@ -9,14 +10,22 @@ function AddModal() {
         video: null
     })
     const [error, setError] = useState('')
+    const [categories, setCategories] = useState([])
     const fileInputRef = useRef(null)
 
-    const categories = [
-        'Musique',
-        'Gaming',
-        'Sport',
-        'Autre'
-    ]
+    useEffect(() => {
+        const loadCategories = async () => {
+            try {
+                const response = await getAllCategories()
+                if (response.success && response.data) {
+                    setCategories(response.data)
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement des catégories:', error)
+            }
+        }
+        loadCategories()
+    }, [])
 
 
     const handleChange = (e) => {
@@ -45,6 +54,24 @@ function AddModal() {
 
     const handleSubmit = (e) => {
         e.preventDefault()
+        
+        // Vérification du titre
+        if (!formData.titre || formData.titre.trim() === '') {
+            setError('Veuillez saisir un titre.')
+            return
+        }
+        
+        // Vérification de la catégorie
+        if (!formData.categorie || formData.categorie === '') {
+            setError('Veuillez sélectionner une catégorie.')
+            return
+        }
+        
+        // Vérification de la description
+        if (!formData.description || formData.description.trim() === '') {
+            setError('Veuillez saisir une description.')
+            return
+        }
         
         // Vérification que la vidéo est présente
         if (!formData.video) {
@@ -102,8 +129,8 @@ function AddModal() {
                     >
                         <option value="">Sélectionnez une catégorie</option>
                         {categories.map((cat) => (
-                            <option key={cat} value={cat}>
-                                {cat}
+                            <option key={cat.id} value={cat.id}>
+                                {cat.title}
                             </option>
                         ))}
                     </select>
