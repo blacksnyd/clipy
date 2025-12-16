@@ -1,12 +1,11 @@
-import db from '../config/db_pool.js';
+import videosService from '../services/videos_service.js';
 
 export const all = async (req, res) => {
   try {
-    const [rows] = await db.pool.execute('SELECT * FROM videos');
-
+    const videos = await videosService.findAll();
     res.status(200).json({
       success: true,
-      data: rows
+      data: videos
     });
   } catch (error) {
     console.error(error);
@@ -28,12 +27,9 @@ export const show = async (req, res) => {
   }
 
   try {
-    const [rows] = await db.pool.execute(
-      'SELECT * FROM videos WHERE id = ?',
-      [id]
-    );
+    const video = await videosService.findById(id);
 
-    if (rows.length === 0) {
+    if (!video) {
       return res.status(404).json({
         success: false,
         message: 'Vidéo non trouvée'
@@ -42,7 +38,7 @@ export const show = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: rows[0]
+      data: video
     });
   } catch (error) {
     console.error(error);
