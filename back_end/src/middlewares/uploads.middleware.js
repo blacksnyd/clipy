@@ -11,30 +11,55 @@ const storage = multer.diskStorage({
     }
   },
   filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${file.fieldname}-${uuidv6()}${ext}`);
+    const file_ext = path.extname(file.originalname).toLowerCase();
+    cb(null, `${file.fieldname}-${uuidv6()}${file_ext}`);
   },
 });
-const fileFilter = (req, file, cb) => {
-  if (
-    file.fieldname === 'video' &&
-    file.mimetype.startsWith('video/')
-  ) {
-    return cb(null, true);
-  }
-  if (
-    file.fieldname === 'cover' &&
-    file.mimetype.startsWith('image/')
-  ) {
-    return cb(null, true);
-  }
 
-  cb(new Error('Type de fichier non autorisé'));
+const image_ext = ['.png', '.jpg', '.jpeg'];
+const video_ext = ['.mp4', '.webm', '.mkv', '.mov'];
+
+const image_mime = ['image/png', 'image/jpeg'];
+const video_mime = [
+  'video/mp4',
+  'video/webm',
+  'video/x-matroska',
+  'video/quicktime',
+];
+
+const file_filter = (req, file, cb) => {
+  const file_ext = path.extname(file.originalname).toLowerCase();
+
+  if (!['video', 'cover'].includes(file.fieldname)) {
+    return cb(new Error('Aucun fichier envoyé'));
+  }
+  if (file.fieldname === 'video') {
+    if (!video_ext.includes(file_ext)) {
+      return cb(new Error('Extension de la vidéo invalide'));
+    }
+
+    if (!video_mime.includes(file.mimetype)) {
+      return cb(new Error('Mimetype de la vidéo invalide'));
+    }
+
+    return cb(null, true);
+  }
+  if (file.fieldname === 'cover') {
+    if (!image_ext.includes(file_ext)) {
+      return cb(new Error('Extension de l\'image invalide'));
+    }
+
+    if (!image_mime.includes(file.mimetype)) {
+      return cb(new Error('Mimetype de l\'image invalide'));
+    }
+
+    return cb(null, true);
+  }
 };
 
 const upload = multer({
   storage,
-  fileFilter,
+  fileFilter: file_filter,
   limits: {
     fileSize: 50 * 1024 * 1024,
   },
