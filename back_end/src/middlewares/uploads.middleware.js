@@ -31,7 +31,7 @@ const file_filter = (req, file, cb) => {
   const file_ext = path.extname(file.originalname).toLowerCase();
 
   if (!['video', 'cover'].includes(file.fieldname)) {
-    return cb(new Error('Aucun fichier envoyé'));
+    return cb(new Error('Champ de fichier invalide'));
   }
   if (file.fieldname === 'video') {
     if (!video_ext.includes(file_ext)) {

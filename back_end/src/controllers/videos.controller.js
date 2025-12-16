@@ -112,7 +112,7 @@ export const create = async (req,res) => {
 try {
     const duration = await getVideoDurationInSeconds(video_url);
     const duration_rounded = Math.ceil(duration);
-    const video = await videosService.create(req.body, video_url, cover_url, duration_rounded);
+    const video = await videosService.create(req.body, video_url,cover_url, duration_rounded);
     res.status(201).json({
       success: true,
       message: "Vidéo ajoutée avec succès",
