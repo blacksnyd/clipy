@@ -101,15 +101,21 @@ export const deleteVideo = async (req, res) => {
   }
 }
 export const create = async (req,res) => {
-  const {title, description, category} = req.body;
   const video_url = `uploads/videos/${req.file.filename}`
   try {
     const duration = await getVideoDurationInSeconds(video_url);
-    const durationRounded = Math.ceil(duration);
-    console.log(durationRounded);
-    const [result] = await db.pool.execute("INSERT INTO videos (title, URL, duration, description, category_id) VALUES (?, ?, ?, ?, ?)",[title, video_url, 23, description, category]);
-    console.log(result.insertId);
+    const duration_rounded = Math.ceil(duration);
+    const video = await videosService.create(req.body, video_url, duration_rounded);
+    res.status(201).json({
+      success: true,
+      message: "Vidéo ajoutée avec succès",
+      data: video
+    });
   } catch (error) {
-
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la création de la vidéo'
+    });
   }
 }
