@@ -65,8 +65,14 @@ function App() {
       <Footer />
       
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="relative mx-4 w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl">
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={handleCloseModal}
+        >
+          <div 
+            className="relative mx-4 w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               onClick={handleCloseModal}
               className="absolute right-4 top-4 text-slate-400 hover:text-slate-600"
