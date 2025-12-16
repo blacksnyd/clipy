@@ -39,7 +39,7 @@ const destroy =  async (id) => {
 const create = async ({ title, description, category }, video_url, duration_rounded) => {
   const [result] = await db.pool.execute(
     "INSERT INTO videos (title, URL, duration, description, category_id) VALUES (?, ?, ?, ?, ?)",
-    [title, video_url, duration_rounded, description]
+    [title, video_url, duration_rounded, description, category]
   );
 
   return {
