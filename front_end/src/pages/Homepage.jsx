@@ -1,5 +1,5 @@
 import CardVideo from '../components/CardVideo'
-import Modal from '../components/Modal'
+import ModalCreate from '../components/ModalCreate'
 
 const Homepage = ({ videos = [], onCardClick, isModalOpen = false, onCloseModal }) => (
   <>
@@ -14,7 +14,7 @@ const Homepage = ({ videos = [], onCardClick, isModalOpen = false, onCloseModal 
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
-          <Modal videoId={null} onClose={onCloseModal} />
+          <ModalCreate onClose={onCloseModal} />
         </div>
       </div>
     )}
