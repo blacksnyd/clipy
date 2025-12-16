@@ -1,5 +1,6 @@
 import db from "../config/db_pool.js";
 import videosService from '../services/videos_service.js';
+import {getVideoDurationInSeconds} from 'get-video-duration';
 
 export const all = async (req, res) => {
   try {
@@ -53,7 +54,7 @@ export const show = async (req, res) => {
 export const updateVideo = async (req,res) => {
   const id = Number(req.params.id);
   // console.log(id);
-  
+
   // console.log("test update");
   try {
     //récupération de l'id (voir pour refacto avec delete et show)
@@ -65,7 +66,7 @@ export const updateVideo = async (req,res) => {
      const updatedVideo = await videosService.update(id, req.body);
 
     //  console.log(updatedVideo);
-    
+
   //affichage de la response
   return res.status(200).json({
     success: true,
@@ -100,9 +101,14 @@ export const deleteVideo = async (req, res) => {
   }
 }
 export const create = async (req,res) => {
+  const {title, description, category} = req.body;
+  const video_url = `uploads/videos/${req.file.filename}`
   try {
-    console.log("create endpoint");
-
+    const duration = await getVideoDurationInSeconds(video_url);
+    const durationRounded = Math.ceil(duration);
+    console.log(durationRounded);
+    const [result] = await db.pool.execute("INSERT INTO videos (title, URL, duration, description, category_id) VALUES (?, ?, ?, ?, ?)",[title, video_url, 23, description, category]);
+    console.log(result.insertId);
   } catch (error) {
 
   }
