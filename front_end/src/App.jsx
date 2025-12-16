@@ -55,9 +55,9 @@ function App() {
   }
 
   return (
-    <>
+    <div className="flex min-h-screen flex-col bg-slate-50">
       <Header onOpenModal={handleOpenModal} />
-      <main className="flex-1">
+      <main className="flex flex-1">
         <Routes>
           <Route path="/" element={<Homepage videos={videoSamples} />} />
           <Route path="/video/:id" element={<DetailVideo />} />
@@ -68,7 +68,7 @@ function App() {
       <ModalBase isOpen={isModalOpen} onClose={handleCloseModal}>
         <ModalCreate videoId={null} onClose={handleCloseModal} />
       </ModalBase>
-    </>
+    </div>
   )
 }
 
