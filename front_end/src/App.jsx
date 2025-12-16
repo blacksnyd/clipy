@@ -3,9 +3,9 @@ import { useState } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
-import Modal from './components/Modal'
 import DetailVideo from './pages/DetailVideo'
 import Homepage from './pages/Homepage'
+import ModalCreate from './components/ModalCreate'
 
 const videoSamples = [
   {
@@ -75,7 +75,7 @@ function App() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-            <Modal videoId={null} onClose={handleCloseModal} />
+            <ModalCreate videoId={null} onClose={handleCloseModal} />
           </div>
         </div>
       )}
