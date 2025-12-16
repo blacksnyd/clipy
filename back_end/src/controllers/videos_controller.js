@@ -69,15 +69,15 @@ export const updateVideo = async (req,res) => {
     [title, URL, duration, description, category_id, id]
   );
   //affichage de la response
-  return res.status(200).json({ 
+  return res.status(200).json({
     success: true,
     message: "Vidéo mise à jour",
   });
-    
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Erreur serveur" });
-    
+
   }
 };
 export const deleteVideo = async (req, res) => {
@@ -96,7 +96,7 @@ export const deleteVideo = async (req, res) => {
     );
     //renvoie une response avec le message
     return res.status(204).json({
-      success: true, 
+      success: true,
       message:"Vidéo bien supprimée",
     });
   } catch (error) {
@@ -104,4 +104,10 @@ export const deleteVideo = async (req, res) => {
     return res.status(500).json({ message: "Erreur serveur"})
   }
 }
-  
+export const create = async (req,res) => {
+  try {
+
+  } catch (error) {
+
+  }
+}
