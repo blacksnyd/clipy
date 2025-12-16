@@ -1,8 +1,9 @@
 import './App.css'
+import { useState } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
-import DetailVideo from './components/DetailVideo'
+import DetailVideo from './pages/DetailVideo'
 import Homepage from './pages/Homepage'
 
 const videoSamples = [
@@ -41,13 +42,22 @@ const videoSamples = [
 ]
 
 function App() {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+  }
 
   return (
     <>
-      <Header />
+      <Header onOpenModal={handleOpenModal} />
       <main className="flex-1">
         <Routes>
-          <Route path="/" element={<Homepage videos={videoSamples} />} />
+          <Route path="/" element={<Homepage videos={videoSamples} isModalOpen={isModalOpen} onCloseModal={handleCloseModal} />} />
           <Route path="/video/:id" element={<DetailVideo />} />
         </Routes>
       </main>

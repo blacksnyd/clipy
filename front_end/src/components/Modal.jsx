@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { getAllCategories } from '../services/categories.service'
 import { createVideo, updateVideo, getVideoById, deleteVideo } from '../services/videos.service'
 
-function AddModal({ videoId = null }) {
+function AddModal({ videoId = null, onClose = null }) {
     const isEditMode = videoId !== null
     
     const [formData, setFormData] = useState({
@@ -131,6 +131,10 @@ function AddModal({ videoId = null }) {
                 
                 if (response.success) {
                     setSuccess('Vidéo mise à jour avec succès !')
+                    // Fermer la modale après succès
+                    if (onClose) {
+                        setTimeout(() => onClose(), 1500)
+                    }
                 }
             } else {
                 // Mode création : upload avec FormData
@@ -154,6 +158,10 @@ function AddModal({ videoId = null }) {
                     // Réinitialiser l'input file
                     if (fileInputRef.current) {
                         fileInputRef.current.value = ''
+                    }
+                    // Fermer la modale après succès
+                    if (onClose) {
+                        setTimeout(() => onClose(), 1500)
                     }
                 }
             }
@@ -323,6 +331,9 @@ function AddModal({ videoId = null }) {
                             setSuccess('')
                             if (fileInputRef.current) {
                                 fileInputRef.current.value = ''
+                            }
+                            if (onClose) {
+                                onClose()
                             }
                         }}
                     >
