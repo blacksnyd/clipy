@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import multer from 'multer';
 import uploads from '../middlewares/uploads.middleware.js';
 import handle_upload from '../middlewares/handle_upload.middleware.js';
 
@@ -16,7 +15,7 @@ router.get('/', all);
 router.get('/:id', show);
 router.get("/title/:title", findVideoByTitle);
 router.get("/categories/:category_id", findVideoByCategory);
-router.post('/', upload.single('video'),create);
+router.post('/', handle_upload(upload_files), create);
 router.put('/:id', updateVideo)
 router.delete('/:id', deleteVideo)
 
