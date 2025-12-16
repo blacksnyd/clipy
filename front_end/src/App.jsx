@@ -6,6 +6,7 @@ import Footer from './components/Footer'
 import DetailVideo from './pages/DetailVideo'
 import Homepage from './pages/Homepage'
 import ModalCreate from './components/ModalCreate'
+import ModalBase from './components/ModalBase'
 
 const videoSamples = [
   {
@@ -63,28 +64,10 @@ function App() {
         </Routes>
       </main>
       <Footer />
-      
-      {isModalOpen && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-          onClick={handleCloseModal}
-        >
-          <div 
-            className="relative mx-4 w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={handleCloseModal}
-              className="absolute right-4 top-4 text-slate-400 hover:text-slate-600"
-            >
-              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            <ModalCreate videoId={null} onClose={handleCloseModal} />
-          </div>
-        </div>
-      )}
+
+      <ModalBase isOpen={isModalOpen} onClose={handleCloseModal}>
+        <ModalCreate videoId={null} onClose={handleCloseModal} />
+      </ModalBase>
     </>
   )
 }
