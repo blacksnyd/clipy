@@ -23,7 +23,7 @@ const update = async (id, videoData) => {
     [title, URL, duration, description, category_id, id]
   );
   console.log(result);
-  
+
 
   return result;
 };
@@ -36,6 +36,21 @@ const destroy =  async (id) => {
       );
 }
 
+const create = async ({ title, description, category }, video_url, duration_rounded) => {
+  const [result] = await db.pool.execute(
+    "INSERT INTO videos (title, URL, duration, description, category_id) VALUES (?, ?, ?, ?, ?)",
+    [title, video_url, duration_rounded, description, category]
+  );
+
+  return {
+    id: result.insertId,
+    title: title,
+    URL: video_url,
+    duration: duration_rounded,
+    description: description,
+    category_id: category
+  };
+};
 
 
-export default {findAll, findById, update, destroy}
+export default {findAll, findById, update, destroy, create}

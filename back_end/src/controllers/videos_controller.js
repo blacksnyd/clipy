@@ -1,5 +1,6 @@
 import db from "../config/db_pool.js";
 import videosService from '../services/videos_service.js';
+import {getVideoDurationInSeconds} from 'get-video-duration';
 
 export const all = async (req, res) => {
   try {
@@ -53,7 +54,7 @@ export const show = async (req, res) => {
 export const updateVideo = async (req,res) => {
   const id = Number(req.params.id);
   // console.log(id);
-  
+
   // console.log("test update");
   try {
     //récupération de l'id (voir pour refacto avec delete et show)
@@ -65,7 +66,7 @@ export const updateVideo = async (req,res) => {
      const updatedVideo = await videosService.update(id, req.body);
 
     //  console.log(updatedVideo);
-    
+
   //affichage de la response
   return res.status(200).json({
     success: true,
@@ -100,10 +101,21 @@ export const deleteVideo = async (req, res) => {
   }
 }
 export const create = async (req,res) => {
+  const video_url = `uploads/videos/${req.file.filename}`
   try {
-    console.log("create endpoint");
-
+    const duration = await getVideoDurationInSeconds(video_url);
+    const duration_rounded = Math.ceil(duration);
+    const video = await videosService.create(req.body, video_url, duration_rounded);
+    res.status(201).json({
+      success: true,
+      message: "Vidéo ajoutée avec succès",
+      data: video
+    });
   } catch (error) {
-
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la création de la vidéo'
+    });
   }
 }
