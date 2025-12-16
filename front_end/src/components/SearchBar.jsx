@@ -1,6 +1,23 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import { getAllCategories } from '../services/categories.service'
 
 const SearchBar = () => {
+  const [categories, setCategories] = useState([])
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const response = await getAllCategories()
+        if (response.success && response.data) {
+          setCategories(response.data)
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement des catégories:', error)
+      }
+    }
+    loadCategories()
+  }, [])
+
   return (
     <div className="flex items-center rounded-xl border border-slate-200 bg-white shadow-sm transition focus-within:border-slate-400 focus-within:shadow-md">
       <span className="px-3 text-slate-400">
@@ -27,11 +44,11 @@ const SearchBar = () => {
         defaultValue="all"
       >
         <option value="all">Tous</option>
-        <option value="music">Musique</option>
-        <option value="video">Vidéo</option>
-        <option value="image">Image</option>
-        <option value="document">Document</option>
-        <option value="other">Autre</option>
+        {categories.map((cat) => (
+          <option key={cat.id} value={cat.id}>
+            {cat.title}
+          </option>
+        ))}
       </select>
 
       <button className="m-1 rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800">
