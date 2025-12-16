@@ -1,8 +1,11 @@
 import React from 'react'
 
-const ButtonCreate = () => {
+const ButtonCreate = ({ onClick }) => {
   return (
-    <button className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800">
+    <button 
+      onClick={onClick}
+      className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
+    >
       Importer
     </button>
   )
