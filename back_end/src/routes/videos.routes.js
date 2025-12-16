@@ -1,10 +1,16 @@
 import { Router } from 'express';
-import upload from '../middlewares/upload_video.middleware.js';
+import multer from 'multer';
+import uploads from '../middlewares/uploads.middleware.js';
+import handle_upload from '../middlewares/handle_upload.middleware.js';
 
 import {all, show, create, deleteVideo, updateVideo, findVideoByTitle, findVideoByCategory} from '../controllers/videos.controller.js';
 
 const router = Router();
 
+const upload_files = uploads.fields([
+  { name: 'video', maxCount: 1 },
+  { name: 'cover', maxCount: 1 },
+]);
 
 router.get('/', all);
 router.get('/:id', show);
