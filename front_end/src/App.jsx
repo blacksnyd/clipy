@@ -49,8 +49,6 @@ function App() {
         <Routes>
           <Route path="/" element={<Homepage videos={videoSamples} />} />
           <Route path="/video/:id" element={<DetailVideo />} />
-          {/* <Route path="/" element={<Homepage />} />
-          <Route path="/video/:id" element={<VideoPage />} /> */}
         </Routes>
       </main>
       <Footer />
