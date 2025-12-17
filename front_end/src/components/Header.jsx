@@ -4,7 +4,7 @@ import SearchBar from './SearchBar';
 import ButtonCreate from './ButtonCreate';
 import logo from '../assets/logo.png';
 
-const Header = ({ onOpenModal }) => {
+const Header = ({ onOpenModal, onSearchChange }) => {
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 md:flex-row md:items-center md:justify-between">
@@ -19,7 +19,7 @@ const Header = ({ onOpenModal }) => {
         </div>
 
         <div className="w-full md:max-w-xl">
-          <SearchBar />
+          <SearchBar onSearchChange={onSearchChange} />
         </div>
 
         <div className="flex items-center gap-3">
