@@ -122,9 +122,7 @@ function Form({
           <div className={`flex flex-col gap-6 ${showVideoInput ? 'md:flex-row md:items-start' : ''}`}>
             {showVideoInput && (
               <div className="w-full md:w-1/2 space-y-2">
-                <label className="block text-sm font-medium text-slate-700" htmlFor="video">
-                  Vidéo
-                </label>
+                
                 <div className="flex flex-wrap items-center gap-3">
                   <input
                     key={`video-${fileResetToken}`}
@@ -157,9 +155,7 @@ function Form({
             )}
 
             <div className={`w-full ${showVideoInput ? 'md:w-1/2' : ''} space-y-2`}>
-              <label className="block text-sm font-medium text-slate-700" htmlFor="cover">
-                Image de couverture (optionnel)
-              </label>
+              
               <div className="flex flex-wrap items-center gap-3">
                 <input
                   key={`cover-${fileResetToken}`}
@@ -180,22 +176,16 @@ function Form({
                 </button>
                 <div className="flex flex-col text-xs italic text-slate-500 leading-tight">
                   <span>Image de couverture (optionnel)</span>
-                </div>
-                {formData.cover && (
+                  {formData.cover && (
                   <>
                     <div className="flex-1 text-sm text-slate-700 truncate">
-                      Fichier sélectionné :{' '}
+                      {' '}
                       <span className="font-medium text-slate-900">{formData.cover.name}</span>
-                    </div>
-                    <div className="w-20 h-20 rounded-lg border border-slate-200 overflow-hidden">
-                      <img
-                        src={URL.createObjectURL(formData.cover)}
-                        alt="Aperçu"
-                        className="w-full h-full object-cover"
-                      />
                     </div>
                   </>
                 )}
+                </div>
+                
               </div>
             </div>
           </div>
