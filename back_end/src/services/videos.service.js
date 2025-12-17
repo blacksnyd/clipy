@@ -20,7 +20,7 @@ const findByTitle = async (title) => {
     [`%${title}%`]
   );
   return rows;
-  
+
 };
 
 const findByCategory = async (category_id) => {
@@ -58,7 +58,7 @@ const destroy =  async (id) => {
 const create = async ({ title, description, category }, video_url, cover_url ,duration_rounded) => {
   const [result] = await db.pool.execute(
     "INSERT INTO videos (title, URL, cover, duration, description, category_id) VALUES (?, ?, ?, ?, ?, ?)",
-    [title, video_url, cover_url ,duration_rounded, description, category]
+    [title, video_url, cover_url ?? null ,duration_rounded, description, category]
   );
 
   return {
