@@ -1,13 +1,13 @@
 import db from '../config/db_pool.js';
+import categoriesService from "../services/categories.service.js";
+
 
 export const all = async (req, res) => {
  try {
-  const [rows] = await db.pool.execute(
-    'SELECT * FROM categories'
-  );
+  const categories = await categoriesService.findAll();
   res.status(200).json({
     success: true,
-    data: rows
+    data: categories
   });
 } catch (error) {
     console.error(error);
