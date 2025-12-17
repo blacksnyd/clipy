@@ -8,6 +8,7 @@ const required = [
    "DB_USER",
    // "DB_PASSWORD",
    "PORT",
+   "JWT_SECRET"
 ]
 
 for (const key of required){
@@ -23,4 +24,5 @@ export default {
    DB_USER : process.env.DB_USER,
    DB_PASSWORD : process.env.DB_PASSWORD,
    DB_PORT : process.env.DB_PORT,
+   JWT_SECRET: process.env.JWT_SECRET,
 }

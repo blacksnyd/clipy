@@ -1,6 +1,9 @@
 import { success } from "zod";
 import db from "../config/db_pool.js";
 import videosService from '../services/videos.service.js';
+import categoriesService from "../services/categories.service.js";
+
+
 import {getVideoDurationInSeconds} from 'get-video-duration';
 
 export const all = async (req, res) => {
@@ -104,63 +107,94 @@ export const show = async (req, res) => {
 };
 
 export const updateVideo = async (req,res) => {
-  //récupération de l'id (voir pour refacto avec delete et show)
   const id = Number(req.params.id);
-  // console.log(id);
 
-  // console.log("test update");
   try {
-    //condition si id n'est pas un nombre
     if (isNaN(id)) {
-      return res.status(400).json({ message: "ID invalide"})
+      return res.status(400).json({ success: false, message: "ID invalide"})
     }
 
-     const updatedVideo = await videosService.update(id, req.body);
+    const cover_file = req.files?.cover?.[0] ?? null;
+    let cover_url = null;
 
-    //  console.log(updatedVideo);
+    // Si une nouvelle cover est fournie
+    if (cover_file) {
+      cover_url = `uploads/covers/${cover_file.filename}`;
+    }
 
-  //affichage de la response
-  return res.status(200).json({
-    success: true,
-    message: "Vidéo mise à jour",
-    data: updatedVideo
-  });
+    // Récupérer la vidéo actuelle pour préserver les valeurs non modifiées
+    const currentVideo = await videosService.findById(id);
+    if (!currentVideo) {
+      return res.status(404).json({ success: false, message: "Vidéo non trouvée" });
+    }
+
+    const updateData = {
+      title: req.body.title || currentVideo.title,
+      URL: currentVideo.URL, // La vidéo ne peut pas être modifiée
+      duration: currentVideo.duration, // La durée ne change pas
+      description: req.body.description || currentVideo.description,
+      category_id: req.body.category_id || currentVideo.category_id,
+      cover: cover_url !== null ? cover_url : currentVideo.cover
+    };
+
+    const updatedVideo = await videosService.update(id, updateData);
+
+    return res.status(200).json({
+      success: true,
+      message: "Vidéo mise à jour",
+      data: updatedVideo
+    });
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Erreur serveur" });
-
+    res.status(500).json({ success: false, message: "Erreur serveur" });
   }
 };
 export const deleteVideo = async (req, res) => {
   try {
-
-    // récupération de l'id
     const id = Number(req.params.id);
-    //condition si id n'est pas un nombre
+    
     if (isNaN(id)) {
-      return res.status(400).json({ message: "ID invalide"})
+      return res.status(400).json({ 
+        success: false,
+        message: "ID invalide"
+      })
     }
-    const deletedVideo = await videosService.destroy(id);
-    //renvoie une response avec le message
-    return res.status(204).json({
+    
+    await videosService.destroy(id);
+    
+    return res.status(200).json({
       success: true,
-      message:"Vidéo bien supprimée",
+      message: "Vidéo bien supprimée",
     });
   } catch (error) {
     console.error("DELETE ERROR:", error);
-    return res.status(500).json({ message: "Erreur serveur"})
+    return res.status(500).json({ 
+      success: false,
+      message: "Erreur serveur"
+    })
   }
 }
 export const create = async (req, res) => {
-  // On supprime le console.log(req.file) qui t'induisait en erreur
-
   try {
     const video_file = req.files?.video?.[0];
     const cover_file = req.files?.cover?.[0] ?? null;
 
+    const category_id = req.body.category_id;
+
+    if (category_id) {
+      const categoryExists = await categoriesService.findById(category_id);
+      if (!categoryExists) {
+          return res.status(404).json({
+              success: false,
+              message: "La catégorie spécifiée n'existe pas."
+          });
+      }
+    }
     if (!video_file) {
-      return res.status(400).json({ success: false, message: "Fichier vidéo manquant" });
+      return res.status(400).json({
+        success: false, message: "Fichier vidéo manquant"
+      });
     }
 
     const video_url = `uploads/videos/${video_file.filename}`;
