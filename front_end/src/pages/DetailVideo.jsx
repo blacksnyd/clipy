@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Rating } from '@smastrom/react-rating';
+import editIcon from '../assets/editor-icone.png';
 
 const DetailVideo = () => {
   // A remplacer par le fetch
@@ -70,9 +71,9 @@ const DetailVideo = () => {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            {/* <button className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700">
-              Lire la vidéo
-            </button> */}
+            <button className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700">
+              <img src={editIcon} alt="edit" />
+            </button>
           </div>
         </div>
       </div>
