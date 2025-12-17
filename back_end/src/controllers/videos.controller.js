@@ -160,7 +160,10 @@ export const create = async (req, res) => {
     const cover_file = req.files?.cover?.[0] ?? null;
 
     if (!video_file) {
-      return res.status(400).json({ success: false, message: "Fichier vidéo manquant" });
+      return res.status(400).json({
+        success: false,
+        message: "Fichier vidéo manquant"
+      });
     }
 
     const video_url = `uploads/videos/${video_file.filename}`;
