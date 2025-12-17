@@ -14,6 +14,7 @@ function Form({
   onFileChange,
   onCoverChange,
   showFileInput = false,
+  showVideoInput = true,
   submitLabel,
   submitLoadingLabel,
   deleteLabel = 'Supprimer',
@@ -118,39 +119,47 @@ function Form({
         </div>
 
         {showFileInput && (
-          <div className="flex flex-col gap-6 md:flex-row md:items-start">
-            <div className="w-full md:w-1/2 space-y-2">
-              <div className="flex flex-wrap items-center gap-3">
-                <input
-                  key={`video-${fileResetToken}`}
-                  id="video"
-                  ref={fileInputRef}
-                  type="file"
-                  name="video"
-                  onChange={handleFileChange}
-                  accept="video/*"
-                  className="hidden"
-                />
-                <button
-                  type="button"
-                  onClick={handleFileClick}
-                  className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-800 shadow-sm transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
-                >
-                  Choisir une vidéo
-                </button>
-                <div className="flex flex-col text-xs italic text-slate-500 leading-tight">
-                  <span>50 Mo max - 60 sec max</span>
-                </div>
-                {formData.video && (
-                  <div className="flex-1 text-sm text-slate-700 truncate">
-                    Fichier sélectionné :{' '}
-                    <span className="font-medium text-slate-900">{formData.video.name}</span>
+          <div className={`flex flex-col gap-6 ${showVideoInput ? 'md:flex-row md:items-start' : ''}`}>
+            {showVideoInput && (
+              <div className="w-full md:w-1/2 space-y-2">
+                <label className="block text-sm font-medium text-slate-700" htmlFor="video">
+                  Vidéo
+                </label>
+                <div className="flex flex-wrap items-center gap-3">
+                  <input
+                    key={`video-${fileResetToken}`}
+                    id="video"
+                    ref={fileInputRef}
+                    type="file"
+                    name="video"
+                    onChange={handleFileChange}
+                    accept="video/*"
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleFileClick}
+                    className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-800 shadow-sm transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
+                  >
+                    Choisir une vidéo
+                  </button>
+                  <div className="flex flex-col text-xs italic text-slate-500 leading-tight">
+                    <span>50 Mo max - 60 sec max</span>
                   </div>
-                )}
+                  {formData.video && (
+                    <div className="flex-1 text-sm text-slate-700 truncate">
+                      Fichier sélectionné :{' '}
+                      <span className="font-medium text-slate-900">{formData.video.name}</span>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
-            <div className="w-full md:w-1/2 space-y-2">
+            <div className={`w-full ${showVideoInput ? 'md:w-1/2' : ''} space-y-2`}>
+              <label className="block text-sm font-medium text-slate-700" htmlFor="cover">
+                Image de couverture (optionnel)
+              </label>
               <div className="flex flex-wrap items-center gap-3">
                 <input
                   key={`cover-${fileResetToken}`}

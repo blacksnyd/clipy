@@ -11,12 +11,16 @@ const upload_files = uploads.fields([
   { name: 'cover', maxCount: 1 },
 ]);
 
+const upload_cover_only = uploads.fields([
+  { name: 'cover', maxCount: 1 },
+]);
+
 router.get('/', all);
 router.get('/:id', show);
 router.get("/title/:title", findVideoByTitle);
 router.get("/categories/:category_id", findVideoByCategory);
 router.post('/', handle_upload(upload_files), create);
-router.put('/:id', updateVideo)
+router.put('/:id', handle_upload(upload_cover_only), updateVideo)
 router.delete('/:id', deleteVideo)
 
 
