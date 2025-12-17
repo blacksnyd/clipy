@@ -55,20 +55,29 @@ const destroy =  async (id) => {
       );
 }
 
-const create = async ({ title, description, category }, video_url, cover_url ,duration_rounded) => {
+const create = async (data, video_url, cover_url, duration_rounded) => {
+  const categoryId = data.category_id || data.category;
+
   const [result] = await db.pool.execute(
     "INSERT INTO videos (title, URL, cover, duration, description, category_id) VALUES (?, ?, ?, ?, ?, ?)",
-    [title, video_url, cover_url ?? null ,duration_rounded, description, category]
+    [
+      data.title,
+      video_url,
+      cover_url ?? null,
+      duration_rounded,
+      data.description,
+      categoryId ?? null
+    ]
   );
 
   return {
     id: result.insertId,
-    title: title,
+    title: data.title,
     URL: video_url,
     cover: cover_url,
     duration: duration_rounded,
-    description: description,
-    category_id: category
+    description: data.description,
+    category_id: categoryId
   };
 };
 
