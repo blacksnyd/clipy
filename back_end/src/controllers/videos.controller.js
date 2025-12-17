@@ -152,30 +152,40 @@ export const deleteVideo = async (req, res) => {
     return res.status(500).json({ message: "Erreur serveur"})
   }
 }
-export const create = async (req,res) => {
-  console.log(req.file);
-  const video_file = req.files?.video?.[0];
-  const cover_file = req.files?.cover?.[0] ?? null;
+export const create = async (req, res) => {
+  // On supprime le console.log(req.file) qui t'induisait en erreur
 
-  const video_url = `uploads/videos/${video_file.filename}`;
-  const cover_url = cover_file ? `uploads/covers/${cover_file.filename}`: null;
+  try {
+    const video_file = req.files?.video?.[0];
+    const cover_file = req.files?.cover?.[0] ?? null;
 
+    // Petite sécurité : si pas de vidéo, on arrête tout de suite
+    if (!video_file) {
+      return res.status(400).json({ success: false, message: "Fichier vidéo manquant" });
+    }
 
-  console.log(cover_file);
-try {
+    const video_url = `uploads/videos/${video_file.filename}`;
+    const cover_url = cover_file ? `uploads/covers/${cover_file.filename}` : null;
+
     const duration = await getVideoDurationInSeconds(video_url);
     const duration_rounded = Math.ceil(duration);
-    const video = await videosService.create(req.body, video_url,cover_url, duration_rounded);
-    res.status(201).json({
+
+    const video = await videosService.create(req.body, video_url, cover_url, duration_rounded);
+
+    console.log("Succès vidéo créée :", video);
+
+    return res.status(201).json({
       success: true,
       message: "Vidéo ajoutée avec succès",
       data: video
     });
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
+    console.error("ERREUR CREATE VIDEO :", error);
+    return res.status(500).json({
       success: false,
-      message: 'Erreur lors de la création de la vidéo'
+      message: 'Erreur lors de la création de la vidéo',
+      error: error.message // Utile pour débugger côté front
     });
   }
 }
