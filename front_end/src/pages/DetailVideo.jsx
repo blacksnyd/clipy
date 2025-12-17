@@ -2,6 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Rating } from '@smastrom/react-rating';
 import { getVideoById } from '../services/videos.service';
+import { getReviewsByVideo, createReview } from '../services/reviews.service';
 import editIcon from '../assets/editor-icone.png';
 
 const DetailVideo = () => {
@@ -11,6 +12,9 @@ const DetailVideo = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [rating, setRating] = useState(0);
+  const [commentText, setCommentText] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [commentError, setCommentError] = useState('');
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -69,6 +73,44 @@ const DetailVideo = () => {
       reviews.length;
     return Number(mean.toFixed(1));
   }, [reviews]);
+
+  const handleSubmitReview = async (event) => {
+    event.preventDefault();
+    if (!commentText.trim()) {
+      setCommentError('Merci de saisir un commentaire.');
+      return;
+    }
+
+    setSubmitting(true);
+    setCommentError('');
+
+    try {
+      const payload = {
+        videoId: id,
+        content: commentText.trim(),
+        value: rating || 0,
+      };
+
+      const response = await createReview(payload);
+      if (response?.success && response?.data) {
+        setReviews((prev) => [response.data, ...prev]);
+      }
+
+      setCommentText('');
+      setRating(0);
+    } catch (err) {
+      setCommentError(
+        err?.message || "Erreur lors de l'envoi du commentaire."
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setCommentText('');
+    setCommentError('');
+  };
 
   if (loading) {
     return (
@@ -143,6 +185,40 @@ const DetailVideo = () => {
               {average} / 5
             </span>
           </div>
+
+          <form
+            onSubmit={handleSubmitReview}
+            className="flex flex-col gap-3 rounded-xl bg-slate-50 p-4"
+          >
+            <label className="text-sm font-medium text-slate-800">
+              Ajouter un commentaire
+            </label>
+            <textarea
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              className="min-h-[80px] w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 resize-none"
+              placeholder="Partage ton avis sur la vidéo"
+            />
+            {commentError ? (
+              <span className="text-sm text-rose-600">{commentError}</span>
+            ) : null}
+            <div className="flex justify-end items-center gap-3">
+              <button
+                type="submit"
+                disabled={submitting}
+                className="rounded-lg border border-transparent bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {submitting ? 'Envoi...' : 'Envoyer'}
+              </button>
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+              >
+                Annuler
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
