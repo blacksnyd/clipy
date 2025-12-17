@@ -159,7 +159,6 @@ export const create = async (req, res) => {
     const video_file = req.files?.video?.[0];
     const cover_file = req.files?.cover?.[0] ?? null;
 
-    // Petite sécurité : si pas de vidéo, on arrête tout de suite
     if (!video_file) {
       return res.status(400).json({ success: false, message: "Fichier vidéo manquant" });
     }
@@ -181,11 +180,11 @@ export const create = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("ERREUR CREATE VIDEO :", error);
+    console.error(error);
     return res.status(500).json({
       success: false,
       message: 'Erreur lors de la création de la vidéo',
-      error: error.message // Utile pour débugger côté front
+      error: error.message
     });
   }
 }
