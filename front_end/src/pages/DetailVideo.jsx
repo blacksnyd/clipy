@@ -44,7 +44,10 @@ const DetailVideo = () => {
             setReviews(reviewsResponse.data);
           }
         } catch (reviewsError) {
-          console.warn('Erreur lors du chargement des reviews (non bloquant):', reviewsError);
+          console.warn(
+            'Erreur lors du chargement des reviews (non bloquant):',
+            reviewsError
+          );
           // On continue même si les reviews ne se chargent pas
           setReviews([]);
         }
@@ -61,7 +64,9 @@ const DetailVideo = () => {
 
   const average = useMemo(() => {
     if (!reviews.length) return 0;
-    const mean = reviews.reduce((sum, review) => sum + (review.value || 0), 0) / reviews.length;
+    const mean =
+      reviews.reduce((sum, review) => sum + (review.value || 0), 0) /
+      reviews.length;
     return Number(mean.toFixed(1));
   }, [reviews]);
 
@@ -79,7 +84,9 @@ const DetailVideo = () => {
     return (
       <div className="flex flex-1 items-center justify-center bg-slate-50">
         <div className="text-center">
-          <p className="text-lg text-rose-600">{error || 'Vidéo non trouvée'}</p>
+          <p className="text-lg text-rose-600">
+            {error || 'Vidéo non trouvée'}
+          </p>
         </div>
       </div>
     );
@@ -93,11 +100,7 @@ const DetailVideo = () => {
         {/* Zone vidéo */}
         <div className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
           {videoUrl ? (
-            <video
-              className="h-full w-full"
-              controls
-              src={videoUrl}
-            >
+            <video className="h-full w-full" controls src={videoUrl}>
               Votre navigateur ne supporte pas la lecture de vidéos.
             </video>
           ) : (
@@ -110,20 +113,14 @@ const DetailVideo = () => {
         {/* Détails */}
         <div className="flex h-full w-full flex-col gap-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-sm uppercase tracking-wide text-slate-500">
-                Vidéo
-              </p>
+            <div className="flex w-full items-center justify-between gap-4">
               <h1 className="text-2xl font-semibold text-slate-900">
                 {video.title || 'Sans titre'}
               </h1>
+              <button className="rounded-lg transition hover:scale-110 ml-auto">
+                <img src={editIcon} alt="edit" className="w-6 h-6" />
+              </button>
             </div>
-            <span className="inline-flex min-w-[96px] items-center justify-center rounded-full bg-slate-100 p-4 text-sm text-slate-600 text-center">
-              {average} / 5
-            </span>
-            <button className="rounded-lg transition hover:scale-110">
-              <img src={editIcon} alt="edit" className="w-10 h-10" />
-            </button>
           </div>
 
           <p className="text-base text-slate-700 leading-relaxed">
@@ -142,16 +139,9 @@ const DetailVideo = () => {
                 Ta note : {rating || '-'} / 5
               </span>
             </div>
-            <p className="text-sm text-slate-700">
-              Note moyenne : <span className="font-semibold">{average}</span> /
-              5
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            {/* <button className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700">
-              Lire la vidéo
-            </button> */}
+            <span className="inline-flex min-w-[96px] items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600 text-center">
+              {average} / 5
+            </span>
           </div>
         </div>
       </div>
