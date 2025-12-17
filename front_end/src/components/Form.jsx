@@ -118,11 +118,8 @@ function Form({
         </div>
 
         {showFileInput && (
-          <>
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700" htmlFor="video">
-                Vidéo
-              </label>
+          <div className="flex flex-col gap-6 md:flex-row md:items-start">
+            <div className="w-full md:w-1/2 space-y-2">
               <div className="flex flex-wrap items-center gap-3">
                 <input
                   key={`video-${fileResetToken}`}
@@ -153,10 +150,7 @@ function Form({
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-slate-700" htmlFor="cover">
-                Image de couverture (optionnel)
-              </label>
+            <div className="w-full md:w-1/2 space-y-2">
               <div className="flex flex-wrap items-center gap-3">
                 <input
                   key={`cover-${fileResetToken}`}
@@ -175,6 +169,9 @@ function Form({
                 >
                   Choisir une image
                 </button>
+                <div className="flex flex-col text-xs italic text-slate-500 leading-tight">
+                  <span>Image de couverture (optionnel)</span>
+                </div>
                 {formData.cover && (
                   <>
                     <div className="flex-1 text-sm text-slate-700 truncate">
@@ -192,7 +189,7 @@ function Form({
                 )}
               </div>
             </div>
-          </>
+          </div>
         )}
 
         {error && (
