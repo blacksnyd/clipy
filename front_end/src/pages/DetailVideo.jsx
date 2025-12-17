@@ -1,23 +1,32 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Rating } from '@smastrom/react-rating';
 import { getVideoById } from '../services/videos.service';
 import {
   getCommentsByVideo,
   createComment,
 } from '../services/comments.service';
+import {
+  getReviewsByVideo,
+  createReview,
+} from '../services/reviews.service';
+import ModalBase from '../components/ModalBase';
+import ModalUpdate from '../components/ModalUpdate';
 import editIcon from '../assets/editor-icone.png';
 
 const DetailVideo = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [video, setVideo] = useState(null);
   const [comments, setComments] = useState([]);
+  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [rating, setRating] = useState(0);
   const [commentText, setCommentText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [commentError, setCommentError] = useState('');
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -44,7 +53,20 @@ const DetailVideo = () => {
           return;
         }
 
-        // Charger les commentaires séparément (non bloquant)
+        // Charger les reviews et commentaires séparément (non bloquant)
+        try {
+          const reviewsResponse = await getReviewsByVideo(id);
+          if (reviewsResponse.success && reviewsResponse.data) {
+            setReviews(reviewsResponse.data);
+          }
+        } catch (reviewsError) {
+          console.warn(
+            'Erreur lors du chargement des reviews (non bloquant):',
+            reviewsError
+          );
+          setReviews([]);
+        }
+
         try {
           const commentsResponse = await getCommentsByVideo(id);
           if (commentsResponse.success && commentsResponse.data) {
@@ -55,7 +77,6 @@ const DetailVideo = () => {
             'Erreur lors du chargement des commentaires (non bloquant):',
             commentsError
           );
-          // On continue même si les commentaires ne se chargent pas
           setComments([]);
         }
       } catch (err) {
@@ -70,12 +91,12 @@ const DetailVideo = () => {
   }, [id]);
 
   const average = useMemo(() => {
-    if (!comments.length) return 0;
+    if (!reviews.length) return 0;
     const mean =
-      comments.reduce((sum, comment) => sum + (comment.value || 0), 0) /
-      comments.length;
+      reviews.reduce((sum, review) => sum + (review.value || 0), 0) /
+      reviews.length;
     return Number(mean.toFixed(1));
-  }, [comments]);
+  }, [reviews]);
 
   const handleSubmitComment = async (event) => {
     event.preventDefault();
@@ -88,25 +109,61 @@ const DetailVideo = () => {
     setCommentError('');
 
     try {
-      const payload = {
-        video_id: id,
+      // Créer le commentaire
+      const commentPayload = {
+        video_id: parseInt(id),
         content: commentText.trim(),
-        value: rating || 0,
       };
 
-      const response = await createComment(payload);
-      if (response?.success && response?.data) {
-        setComments((prev) => [
-          { ...payload, id: response.data.id },
-          ...prev,
-        ]);
+      const commentResponse = await createComment(commentPayload);
+      if (commentResponse?.success && commentResponse?.data) {
+        // Recharger les commentaires pour avoir les données complètes
+        const commentsResponse = await getCommentsByVideo(id);
+        if (commentsResponse.success && commentsResponse.data) {
+          setComments(commentsResponse.data);
+        }
+        
+        // Réinitialiser le formulaire
+        setCommentText('');
+        setCommentError('');
+      } else {
+        setCommentError(commentResponse?.message || "Erreur lors de l'envoi du commentaire.");
       }
-
-      setCommentText('');
-      setRating(0);
     } catch (err) {
       setCommentError(
         err?.message || "Erreur lors de l'envoi du commentaire."
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSubmitRating = async () => {
+    if (!rating || rating <= 0) {
+      return;
+    }
+
+    setSubmitting(true);
+    setCommentError('');
+
+    try {
+      const reviewPayload = {
+        video_id: parseInt(id),
+        rating: rating,
+      };
+
+      const reviewResponse = await createReview(reviewPayload);
+      if (reviewResponse?.success && reviewResponse?.data) {
+        // Recharger les reviews pour mettre à jour la moyenne
+        const reviewsResponse = await getReviewsByVideo(id);
+        if (reviewsResponse.success && reviewsResponse.data) {
+          setReviews(reviewsResponse.data);
+        }
+        setRating(0);
+      }
+    } catch (err) {
+      setCommentError(
+        err?.message || "Erreur lors de l'envoi de la note."
       );
     } finally {
       setSubmitting(false);
@@ -165,7 +222,10 @@ const DetailVideo = () => {
               <h1 className="text-2xl font-semibold text-slate-900">
                 {video.title || 'Sans titre'}
               </h1>
-              <button className="rounded-lg transition hover:scale-110 ml-auto">
+              <button 
+                onClick={() => setIsEditModalOpen(true)}
+                className="rounded-lg transition hover:scale-110 ml-auto"
+              >
                 <img src={editIcon} alt="edit" className="w-6 h-6" />
               </button>
             </div>
@@ -186,6 +246,16 @@ const DetailVideo = () => {
               <span className="text-sm text-slate-700">
                 Ta note : {rating || '-'} / 5
               </span>
+              {rating > 0 && (
+                <button
+                  type="button"
+                  onClick={handleSubmitRating}
+                  disabled={submitting}
+                  className="ml-auto rounded-lg border border-transparent bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {submitting ? 'Envoi...' : 'Noter'}
+                </button>
+              )}
             </div>
             <span className="inline-flex min-w-[96px] items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600 text-center">
               {average} / 5
@@ -260,6 +330,31 @@ const DetailVideo = () => {
           </div>
         </div>
       )}
+
+      <ModalBase isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
+        <ModalUpdate 
+          videoId={id} 
+          onClose={() => {
+            setIsEditModalOpen(false);
+            // Recharger les données de la vidéo après update
+            const reloadVideoData = async () => {
+              try {
+                const videoResponse = await getVideoById(id);
+                if (videoResponse.success && videoResponse.data) {
+                  setVideo(videoResponse.data);
+                }
+              } catch (err) {
+                console.error('Erreur lors du rechargement de la vidéo:', err);
+              }
+            };
+            reloadVideoData();
+          }}
+          onDeleteSuccess={() => {
+            // Rediriger vers la homepage après suppression
+            navigate('/');
+          }}
+        />
+      </ModalBase>
     </div>
   );
 };

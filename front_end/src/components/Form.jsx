@@ -14,6 +14,7 @@ function Form({
   onFileChange,
   onCoverChange,
   showFileInput = false,
+  showVideoInput = true,
   submitLabel,
   submitLoadingLabel,
   deleteLabel = 'Supprimer',
@@ -118,39 +119,45 @@ function Form({
         </div>
 
         {showFileInput && (
-          <div className="flex flex-col gap-6 md:flex-row md:items-start">
-            <div className="w-full md:w-1/2 space-y-2">
-              <div className="flex flex-wrap items-center gap-3">
-                <input
-                  key={`video-${fileResetToken}`}
-                  id="video"
-                  ref={fileInputRef}
-                  type="file"
-                  name="video"
-                  onChange={handleFileChange}
-                  accept="video/*"
-                  className="hidden"
-                />
-                <button
-                  type="button"
-                  onClick={handleFileClick}
-                  className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-800 shadow-sm transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
-                >
-                  Choisir une vidéo
-                </button>
-                <div className="flex flex-col text-xs italic text-slate-500 leading-tight">
-                  <span>50 Mo max - 60 sec max</span>
-                </div>
-                {formData.video && (
-                  <div className="flex-1 text-sm text-slate-700 truncate">
-                    Fichier sélectionné :{' '}
-                    <span className="font-medium text-slate-900">{formData.video.name}</span>
+          <div className={`flex flex-col gap-6 ${showVideoInput ? 'md:flex-row md:items-start' : ''}`}>
+            {showVideoInput && (
+              <div className="w-full md:w-1/2 space-y-2">
+                
+                <div className="flex flex-wrap items-center gap-3">
+                  <input
+                    key={`video-${fileResetToken}`}
+                    id="video"
+                    ref={fileInputRef}
+                    type="file"
+                    name="video"
+                    onChange={handleFileChange}
+                    accept="video/*"
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleFileClick}
+                    className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-800 shadow-sm transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
+                  >
+                    Choisir une vidéo
+                  </button>
+                  <div className="flex flex-col text-xs italic text-slate-500 leading-tight">
+                    <span>50 Mo max - 60 sec max</span>
                   </div>
-                )}
+                  {formData.video && (
+                    <div className="flex-1 min-w-0 text-sm text-slate-700 truncate">
+                      Fichier sélectionné :{' '}
+                      <span className="font-medium text-slate-900 block max-w-full overflow-hidden text-ellipsis whitespace-nowrap">
+                        {formData.video.name}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
-            <div className="w-full md:w-1/2 space-y-2">
+            <div className={`w-full ${showVideoInput ? 'md:w-1/2' : ''} space-y-2`}>
+              
               <div className="flex flex-wrap items-center gap-3">
                 <input
                   key={`cover-${fileResetToken}`}
@@ -171,22 +178,18 @@ function Form({
                 </button>
                 <div className="flex flex-col text-xs italic text-slate-500 leading-tight">
                   <span>Image de couverture (optionnel)</span>
-                </div>
-                {formData.cover && (
+                  {formData.cover && (
                   <>
-                    <div className="flex-1 text-sm text-slate-700 truncate">
-                      Fichier sélectionné :{' '}
-                      <span className="font-medium text-slate-900">{formData.cover.name}</span>
-                    </div>
-                    <div className="w-20 h-20 rounded-lg border border-slate-200 overflow-hidden">
-                      <img
-                        src={URL.createObjectURL(formData.cover)}
-                        alt="Aperçu"
-                        className="w-full h-full object-cover"
-                      />
+                    <div className="flex-1 min-w-0 max-w-[300px] text-sm text-slate-700 truncate">
+                      {' '}
+                      <span className="font-medium text-slate-900 block max-w-full overflow-hidden text-ellipsis whitespace-nowrap">
+                        {formData.cover.name}
+                      </span>
                     </div>
                   </>
                 )}
+                </div>
+                
               </div>
             </div>
           </div>

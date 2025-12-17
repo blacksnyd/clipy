@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import CardVideo from '../components/CardVideo'
 import { getAllVideos, getVideosByTitle, getVideosByCategory } from '../services/videos.service'
+import { getReviewsByVideo } from '../services/reviews.service'
 
 const Homepage = ({ onCardClick, reloadTrigger = 0, searchCriteria = { searchTerm: '', categoryId: 'all' } }) => {
   const [videos, setVideos] = useState([])
+  const [videosWithRatings, setVideosWithRatings] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const navigate = useNavigate()
@@ -28,9 +30,42 @@ const Homepage = ({ onCardClick, reloadTrigger = 0, searchCriteria = { searchTer
               video => video.category_id === parseInt(searchCriteria.categoryId)
             )
             setVideos(filteredVideos)
+            
             if (filteredVideos.length === 0) {
               setError('Aucune vidéo trouvée avec ces critères.')
+              setVideosWithRatings([])
+              setLoading(false)
+              return
             }
+            
+            // Charger les reviews pour chaque vidéo filtrée
+            const videosWithRatingsData = await Promise.all(
+              filteredVideos.map(async (video) => {
+                try {
+                  const reviewsResponse = await getReviewsByVideo(video.id)
+                  const reviews = reviewsResponse.success && reviewsResponse.data ? reviewsResponse.data : []
+                  
+                  const averageRating = reviews.length > 0
+                    ? reviews.reduce((sum, review) => sum + (review.value || 0), 0) / reviews.length
+                    : 0
+                  
+                  return {
+                    ...video,
+                    averageRating: Number(averageRating.toFixed(1)),
+                    ratingCount: reviews.length
+                  }
+                } catch (err) {
+                  console.warn(`Erreur lors du chargement des reviews pour la vidéo ${video.id}:`, err)
+                  return {
+                    ...video,
+                    averageRating: 0,
+                    ratingCount: 0
+                  }
+                }
+              })
+            )
+            
+            setVideosWithRatings(videosWithRatingsData)
             setLoading(false)
             return
           }
@@ -50,6 +85,36 @@ const Homepage = ({ onCardClick, reloadTrigger = 0, searchCriteria = { searchTer
         
         if (response.success && response.data) {
           setVideos(response.data)
+          
+          // Charger les reviews pour chaque vidéo et calculer les moyennes
+          const videosWithRatingsData = await Promise.all(
+            response.data.map(async (video) => {
+              try {
+                const reviewsResponse = await getReviewsByVideo(video.id)
+                const reviews = reviewsResponse.success && reviewsResponse.data ? reviewsResponse.data : []
+                
+                const averageRating = reviews.length > 0
+                  ? reviews.reduce((sum, review) => sum + (review.value || 0), 0) / reviews.length
+                  : 0
+                
+                return {
+                  ...video,
+                  averageRating: Number(averageRating.toFixed(1)),
+                  ratingCount: reviews.length
+                }
+              } catch (err) {
+                console.warn(`Erreur lors du chargement des reviews pour la vidéo ${video.id}:`, err)
+                return {
+                  ...video,
+                  averageRating: 0,
+                  ratingCount: 0
+                }
+              }
+            })
+          )
+          
+          setVideosWithRatings(videosWithRatingsData)
+          
           // Si aucun résultat et qu'il y a des critères de recherche
           if (response.data.length === 0 && (hasSearchTerm || hasCategory)) {
             setError('Aucune vidéo trouvée avec ces critères.')
@@ -108,10 +173,12 @@ const Homepage = ({ onCardClick, reloadTrigger = 0, searchCriteria = { searchTer
             </p>
           </div>
         ) : (
-          videos.map((video, index) => (
+          videosWithRatings.map((video, index) => (
             <CardVideo
               key={video?.id ?? index}
               video={video}
+              averageRating={video.averageRating}
+              ratingCount={video.ratingCount}
               onClick={() => handleCardClick(video)}
             />
           ))
