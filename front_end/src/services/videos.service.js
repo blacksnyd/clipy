@@ -6,6 +6,10 @@ export const getAllVideos = () => request("/videos");
 
 export const getVideoById = (id) => request(`/videos/${id}`);
 
+export const getVideosByTitle = (title) => request(`/videos/title/${encodeURIComponent(title)}`);
+
+export const getVideosByCategory = (categoryId) => request(`/videos/categories/${categoryId}`);
+
 export const createVideo = async (formData) => {
     const response = await fetch(`${API_URL}/api/videos`, {
         method: 'POST',
