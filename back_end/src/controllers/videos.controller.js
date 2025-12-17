@@ -21,7 +21,7 @@ export const all = async (req, res) => {
 };
 
 export const findVideoByTitle = async (req, res) => {
-  
+
   try {
 
     const { title } = req.params;
@@ -36,9 +36,9 @@ export const findVideoByTitle = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Voici la liste des vidéos trouvées par titre",
-      data: videos 
+      data: videos
     });
-    
+
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -58,9 +58,9 @@ export const findVideoByCategory = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Voici la liste des vidéos trouvées par categorie",
-      data: videos 
+      data: videos
     });
-    
+
   } catch (error) {
     console.error(error);
     res.status(500).json({
@@ -155,10 +155,11 @@ export const deleteVideo = async (req, res) => {
 export const create = async (req,res) => {
   console.log(req.file);
   const video_file = req.files?.video?.[0];
-  const cover_file = req.files?.cover?.[0];
+  const cover_file = req.files?.cover?.[0] ?? null;
 
   const video_url = `uploads/videos/${video_file.filename}`;
-  const cover_url = `uploads/covers/${cover_file.filename}`;
+  const cover_url = cover_file ? `uploads/covers/${cover_file.filename}`: null;
+
 
   console.log(cover_file);
 try {
