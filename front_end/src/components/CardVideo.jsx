@@ -1,11 +1,12 @@
 import React from 'react'
 import { Rating } from '@smastrom/react-rating'
+import imageDefault from '../assets/image-default.png'
 
 const CardVideo = ({
   video,
   title = 'Titre de la vidéo',
   description = '',
-  thumbnail = 'https://via.placeholder.com/800x450?text=Vid%C3%A9o',
+  thumbnail = imageDefault,
   averageRating = 0,
   ratingCount = 0,
   onClick = null
@@ -20,11 +21,6 @@ const CardVideo = ({
     ? `${API_URL}/${video.cover}` 
     : (video?.thumbnail ?? thumbnail)
   
-  // Debug: afficher l'URL de l'image
-  if (video?.cover) {
-    console.log('Cover URL:', coverUrl, 'Cover value:', video.cover)
-  }
-  
   const resolvedThumbnail = coverUrl
   const resolvedAverageRating = Number(video?.averageRating ?? averageRating ?? 0)
   const resolvedRatingCount = video?.ratingCount ?? ratingCount
@@ -33,7 +29,7 @@ const CardVideo = ({
 
   return (
     <article
-      className="group flex  flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+      className="group flex cursor-pointer flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
       onClick={onClick}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : -1}
@@ -45,7 +41,7 @@ const CardVideo = ({
           className="h-full w-full object-cover transition duration-200 group-hover:scale-105"
           onError={(e) => {
             console.error('Erreur de chargement de l\'image:', resolvedThumbnail)
-            e.target.src = thumbnail
+            e.target.src = imageDefault
           }}
         />
       </div>
