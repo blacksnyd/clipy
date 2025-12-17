@@ -24,5 +24,10 @@ export default {
    DB_USER : process.env.DB_USER,
    DB_PASSWORD : process.env.DB_PASSWORD,
    DB_PORT : process.env.DB_PORT,
+<<<<<<< HEAD
    JWT_SECRET: process.env.JWT_SECRET
 }
+=======
+   JWT_SECRET: process.env.JWT_SECRET,
+}
+>>>>>>> 2abefda52d254476bd39bb5d3d64a2c3c90b608e

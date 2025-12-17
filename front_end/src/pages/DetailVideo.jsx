@@ -224,7 +224,7 @@ const DetailVideo = () => {
               </h1>
               <button 
                 onClick={() => setIsEditModalOpen(true)}
-                className="rounded-lg transition hover:scale-110 ml-auto"
+                className="rounded-lg transition hover:scale-110 ml-auto cursor-pointer"
               >
                 <img src={editIcon} alt="edit" className="w-6 h-6" />
               </button>
