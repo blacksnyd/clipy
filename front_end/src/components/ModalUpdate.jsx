@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { getAllCategories } from '../services/categories.service'
 import { deleteVideo, getVideoById, updateVideo } from '../services/videos.service'
 import { validateVideoPayload } from '../services/validation.service'
-import { makeInputChangeHandler } from '../utils/form.utils'
+import { makeInputChangeHandler, makeImageFileHandler } from '../utils/form.utils'
 import Form from './Form'
 
 function ModalUpdate({ videoId, onClose = null }) {
@@ -10,7 +10,8 @@ function ModalUpdate({ videoId, onClose = null }) {
     titre: '',
     categorie: '',
     description: '',
-    video: null
+    video: null,
+    cover: null
   })
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -42,7 +43,8 @@ function ModalUpdate({ videoId, onClose = null }) {
             titre: video.title || '',
             categorie: video.category_id || '',
             description: video.description || '',
-            video: null
+            video: null,
+            cover: null
           })
         }
       } catch (err) {
@@ -54,6 +56,12 @@ function ModalUpdate({ videoId, onClose = null }) {
   }, [videoId])
 
   const handleChange = makeInputChangeHandler(setFormData)
+  const handleCoverChange = makeImageFileHandler({
+    setFormData,
+    setError,
+    fieldName: 'cover',
+    required: false
+  })
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -109,7 +117,8 @@ function ModalUpdate({ videoId, onClose = null }) {
           titre: '',
           categorie: '',
           description: '',
-          video: null
+          video: null,
+          cover: null
         })
       }
     } catch (err) {
@@ -133,7 +142,8 @@ function ModalUpdate({ videoId, onClose = null }) {
           titre: '',
           categorie: '',
           description: '',
-          video: null
+          video: null,
+          cover: null
         })
         setError('')
         setSuccess('')
@@ -143,6 +153,7 @@ function ModalUpdate({ videoId, onClose = null }) {
       }}
       onDelete={handleDelete}
       onChange={handleChange}
+      onCoverChange={handleCoverChange}
       submitLabel="Mettre à jour la vidéo"
       submitLoadingLabel="Mise à jour en cours..."
       deleteLabel="Supprimer la vidéo"

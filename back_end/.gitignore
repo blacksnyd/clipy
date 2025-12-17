@@ -1,7 +1,8 @@
 # Dépendances
 node_modules/
 
-upload/videos/*
+uploads/videos/*
+uploads/covers/*
 
 # Fichiers d'environnement
 .env

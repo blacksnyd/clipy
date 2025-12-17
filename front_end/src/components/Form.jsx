@@ -12,6 +12,7 @@ function Form({
   onDelete,
   onChange,
   onFileChange,
+  onCoverChange,
   showFileInput = false,
   submitLabel,
   submitLoadingLabel,
@@ -20,15 +21,23 @@ function Form({
   fileResetToken = 0
 }) {
   const fileInputRef = useRef(null)
+  const coverInputRef = useRef(null)
 
   useEffect(() => {
     if (showFileInput && fileInputRef.current) {
       fileInputRef.current.value = ''
     }
+    if (coverInputRef.current) {
+      coverInputRef.current.value = ''
+    }
   }, [fileResetToken, showFileInput])
 
   const handleFileClick = () => {
     fileInputRef.current?.click()
+  }
+
+  const handleCoverClick = () => {
+    coverInputRef.current?.click()
   }
 
   const handleFileChange = (e) => {
@@ -38,6 +47,15 @@ function Form({
       e.target.value = ''
     }
     onFileChange(file, resetInput)
+  }
+
+  const handleCoverChange = (e) => {
+    if (!onCoverChange) return
+    const file = e.target.files[0]
+    const resetInput = () => {
+      e.target.value = ''
+    }
+    onCoverChange(file, resetInput)
   }
 
   return (
@@ -100,39 +118,81 @@ function Form({
         </div>
 
         {showFileInput && (
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-slate-700" htmlFor="video">
-              Vidéo
-            </label>
-            <div className="flex flex-wrap items-center gap-3">
-              <input
-                key={fileResetToken}
-                id="video"
-                ref={fileInputRef}
-                type="file"
-                name="video"
-                onChange={handleFileChange}
-                accept="video/*"
-                className="hidden"
-              />
-              <button
-                type="button"
-                onClick={handleFileClick}
-                className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-800 shadow-sm transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
-              >
-                Choisir une vidéo
-              </button>
-              <div className="flex flex-col text-xs italic text-slate-500 leading-tight">
-                <span>50 Mo max - 60 sec max</span>
-              </div>
-              {formData.video && (
-                <div className="flex-1 text-sm text-slate-700 truncate">
-                  Fichier sélectionné :{' '}
-                  <span className="font-medium text-slate-900">{formData.video.name}</span>
+          <>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-slate-700" htmlFor="video">
+                Vidéo
+              </label>
+              <div className="flex flex-wrap items-center gap-3">
+                <input
+                  key={`video-${fileResetToken}`}
+                  id="video"
+                  ref={fileInputRef}
+                  type="file"
+                  name="video"
+                  onChange={handleFileChange}
+                  accept="video/*"
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={handleFileClick}
+                  className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-800 shadow-sm transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
+                >
+                  Choisir une vidéo
+                </button>
+                <div className="flex flex-col text-xs italic text-slate-500 leading-tight">
+                  <span>50 Mo max - 60 sec max</span>
                 </div>
-              )}
+                {formData.video && (
+                  <div className="flex-1 text-sm text-slate-700 truncate">
+                    Fichier sélectionné :{' '}
+                    <span className="font-medium text-slate-900">{formData.video.name}</span>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-slate-700" htmlFor="cover">
+                Image de couverture (optionnel)
+              </label>
+              <div className="flex flex-wrap items-center gap-3">
+                <input
+                  key={`cover-${fileResetToken}`}
+                  id="cover"
+                  ref={coverInputRef}
+                  type="file"
+                  name="cover"
+                  onChange={handleCoverChange}
+                  accept="image/*"
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={handleCoverClick}
+                  className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-800 shadow-sm transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
+                >
+                  Choisir une image
+                </button>
+                {formData.cover && (
+                  <>
+                    <div className="flex-1 text-sm text-slate-700 truncate">
+                      Fichier sélectionné :{' '}
+                      <span className="font-medium text-slate-900">{formData.cover.name}</span>
+                    </div>
+                    <div className="w-20 h-20 rounded-lg border border-slate-200 overflow-hidden">
+                      <img
+                        src={URL.createObjectURL(formData.cover)}
+                        alt="Aperçu"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </>
         )}
 
         {error && (
