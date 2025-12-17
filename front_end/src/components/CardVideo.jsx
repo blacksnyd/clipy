@@ -10,9 +10,22 @@ const CardVideo = ({
   ratingCount = 0,
   onClick = null
 }) => {
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+  
   const resolvedTitle = video?.title ?? title
   const resolvedDescription = video?.description ?? description
-  const resolvedThumbnail = video?.thumbnail ?? thumbnail
+  
+  // Utiliser cover si disponible, sinon thumbnail, sinon image par défaut
+  const coverUrl = video?.cover 
+    ? `${API_URL}/${video.cover}` 
+    : (video?.thumbnail ?? thumbnail)
+  
+  // Debug: afficher l'URL de l'image
+  if (video?.cover) {
+    console.log('Cover URL:', coverUrl, 'Cover value:', video.cover)
+  }
+  
+  const resolvedThumbnail = coverUrl
   const resolvedAverageRating = Number(video?.averageRating ?? averageRating ?? 0)
   const resolvedRatingCount = video?.ratingCount ?? ratingCount
 
@@ -30,6 +43,10 @@ const CardVideo = ({
           src={resolvedThumbnail}
           alt={resolvedTitle}
           className="h-full w-full object-cover transition duration-200 group-hover:scale-105"
+          onError={(e) => {
+            console.error('Erreur de chargement de l\'image:', resolvedThumbnail)
+            e.target.src = thumbnail
+          }}
         />
       </div>
 

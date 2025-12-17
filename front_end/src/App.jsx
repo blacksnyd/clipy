@@ -10,6 +10,7 @@ import ModalBase from './components/ModalBase'
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [reloadTrigger, setReloadTrigger] = useState(0)
 
   const handleOpenModal = () => {
     setIsModalOpen(true)
@@ -19,19 +20,24 @@ function App() {
     setIsModalOpen(false)
   }
 
+  const handleVideoCreated = () => {
+    // Déclencher le rechargement des vidéos
+    setReloadTrigger(prev => prev + 1)
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">
       <Header onOpenModal={handleOpenModal} />
       <main className="flex flex-1">
         <Routes>
-          <Route path="/" element={<Homepage />} />
+          <Route path="/" element={<Homepage reloadTrigger={reloadTrigger} />} />
           <Route path="/video/:id" element={<DetailVideo />} />
         </Routes>
       </main>
       <Footer />
 
       <ModalBase isOpen={isModalOpen} onClose={handleCloseModal}>
-        <ModalCreate videoId={null} onClose={handleCloseModal} />
+        <ModalCreate videoId={null} onClose={handleCloseModal} onVideoCreated={handleVideoCreated} />
       </ModalBase>
     </div>
   )

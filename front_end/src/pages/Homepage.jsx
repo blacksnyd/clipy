@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import CardVideo from '../components/CardVideo'
 import { getAllVideos } from '../services/videos.service'
 
-const Homepage = ({ onCardClick }) => {
+const Homepage = ({ onCardClick, reloadTrigger = 0 }) => {
   const [videos, setVideos] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -25,7 +25,7 @@ const Homepage = ({ onCardClick }) => {
       }
     }
     loadVideos()
-  }, [])
+  }, [reloadTrigger])
 
   const handleCardClick = (video) => {
     if (onCardClick) {
