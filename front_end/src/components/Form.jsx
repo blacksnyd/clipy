@@ -145,9 +145,11 @@ function Form({
                     <span>50 Mo max - 60 sec max</span>
                   </div>
                   {formData.video && (
-                    <div className="flex-1 text-sm text-slate-700 truncate">
+                    <div className="flex-1 min-w-0 text-sm text-slate-700 truncate">
                       Fichier sélectionné :{' '}
-                      <span className="font-medium text-slate-900">{formData.video.name}</span>
+                      <span className="font-medium text-slate-900 block max-w-full overflow-hidden text-ellipsis whitespace-nowrap">
+                        {formData.video.name}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -178,9 +180,11 @@ function Form({
                   <span>Image de couverture (optionnel)</span>
                   {formData.cover && (
                   <>
-                    <div className="flex-1 text-sm text-slate-700 truncate">
+                    <div className="flex-1 min-w-0 max-w-[300px] text-sm text-slate-700 truncate">
                       {' '}
-                      <span className="font-medium text-slate-900">{formData.cover.name}</span>
+                      <span className="font-medium text-slate-900 block max-w-full overflow-hidden text-ellipsis whitespace-nowrap">
+                        {formData.cover.name}
+                      </span>
                     </div>
                   </>
                 )}
