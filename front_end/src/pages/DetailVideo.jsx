@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Rating } from '@smastrom/react-rating';
 import { getVideoById } from '../services/videos.service';
 import {
@@ -10,10 +10,13 @@ import {
   getReviewsByVideo,
   createReview,
 } from '../services/reviews.service';
+import ModalBase from '../components/ModalBase';
+import ModalUpdate from '../components/ModalUpdate';
 import editIcon from '../assets/editor-icone.png';
 
 const DetailVideo = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [video, setVideo] = useState(null);
   const [comments, setComments] = useState([]);
   const [reviews, setReviews] = useState([]);
@@ -23,6 +26,7 @@ const DetailVideo = () => {
   const [commentText, setCommentText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [commentError, setCommentError] = useState('');
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -218,7 +222,10 @@ const DetailVideo = () => {
               <h1 className="text-2xl font-semibold text-slate-900">
                 {video.title || 'Sans titre'}
               </h1>
-              <button className="rounded-lg transition hover:scale-110 ml-auto">
+              <button 
+                onClick={() => setIsEditModalOpen(true)}
+                className="rounded-lg transition hover:scale-110 ml-auto"
+              >
                 <img src={editIcon} alt="edit" className="w-6 h-6" />
               </button>
             </div>
@@ -323,6 +330,31 @@ const DetailVideo = () => {
           </div>
         </div>
       )}
+
+      <ModalBase isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
+        <ModalUpdate 
+          videoId={id} 
+          onClose={() => {
+            setIsEditModalOpen(false);
+            // Recharger les données de la vidéo après update
+            const reloadVideoData = async () => {
+              try {
+                const videoResponse = await getVideoById(id);
+                if (videoResponse.success && videoResponse.data) {
+                  setVideo(videoResponse.data);
+                }
+              } catch (err) {
+                console.error('Erreur lors du rechargement de la vidéo:', err);
+              }
+            };
+            reloadVideoData();
+          }}
+          onDeleteSuccess={() => {
+            // Rediriger vers la homepage après suppression
+            navigate('/');
+          }}
+        />
+      </ModalBase>
     </div>
   );
 };
