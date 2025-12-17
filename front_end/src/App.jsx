@@ -8,41 +8,6 @@ import Homepage from './pages/Homepage'
 import ModalCreate from './components/ModalCreate'
 import ModalBase from './components/ModalBase'
 
-const videoSamples = [
-  {
-    id: 1,
-    title: 'Exploration des montagnes',
-    description: 'Une aventure immersive en haute altitude.',
-    thumbnail: 'https://via.placeholder.com/600x338?text=Montagnes',
-    averageRating: 4.5,
-    ratingCount: 128
-  },
-  {
-    id: 2,
-    title: 'Recette : Pasta Verde',
-    description: 'Pâtes fraîches et pesto maison.',
-    thumbnail: 'https://via.placeholder.com/600x338?text=Pasta',
-    averageRating: 4.2,
-    ratingCount: 76
-  },
-  {
-    id: 3,
-    title: 'Tutoriel React',
-    description: 'Hooks, routing et bonnes pratiques.',
-    thumbnail: 'https://via.placeholder.com/600x338?text=React+Guide',
-    averageRating: 4.8,
-    ratingCount: 201
-  },
-  {
-    id: 4,
-    title: 'Voyage à Kyoto',
-    description: 'Temples, jardins et gastronomie.',
-    thumbnail: 'https://via.placeholder.com/600x338?text=Kyoto',
-    averageRating: 4.6,
-    ratingCount: 95
-  }
-]
-
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -59,7 +24,7 @@ function App() {
       <Header onOpenModal={handleOpenModal} />
       <main className="flex flex-1">
         <Routes>
-          <Route path="/" element={<Homepage videos={videoSamples} />} />
+          <Route path="/" element={<Homepage />} />
           <Route path="/video/:id" element={<DetailVideo />} />
         </Routes>
       </main>
