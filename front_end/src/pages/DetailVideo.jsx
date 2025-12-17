@@ -2,13 +2,16 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Rating } from '@smastrom/react-rating';
 import { getVideoById } from '../services/videos.service';
-import { getReviewsByVideo, createReview } from '../services/reviews.service';
+import {
+  getCommentsByVideo,
+  createComment,
+} from '../services/comments.service';
 import editIcon from '../assets/editor-icone.png';
 
 const DetailVideo = () => {
   const { id } = useParams();
   const [video, setVideo] = useState(null);
-  const [reviews, setReviews] = useState([]);
+  const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [rating, setRating] = useState(0);
@@ -41,19 +44,19 @@ const DetailVideo = () => {
           return;
         }
 
-        // Charger les reviews séparément (non bloquant)
+        // Charger les commentaires séparément (non bloquant)
         try {
-          const reviewsResponse = await getReviewsByVideo(id);
-          if (reviewsResponse.success && reviewsResponse.data) {
-            setReviews(reviewsResponse.data);
+          const commentsResponse = await getCommentsByVideo(id);
+          if (commentsResponse.success && commentsResponse.data) {
+            setComments(commentsResponse.data);
           }
-        } catch (reviewsError) {
+        } catch (commentsError) {
           console.warn(
-            'Erreur lors du chargement des reviews (non bloquant):',
-            reviewsError
+            'Erreur lors du chargement des commentaires (non bloquant):',
+            commentsError
           );
-          // On continue même si les reviews ne se chargent pas
-          setReviews([]);
+          // On continue même si les commentaires ne se chargent pas
+          setComments([]);
         }
       } catch (err) {
         console.error('Erreur lors du chargement de la vidéo:', err);
@@ -67,14 +70,14 @@ const DetailVideo = () => {
   }, [id]);
 
   const average = useMemo(() => {
-    if (!reviews.length) return 0;
+    if (!comments.length) return 0;
     const mean =
-      reviews.reduce((sum, review) => sum + (review.value || 0), 0) /
-      reviews.length;
+      comments.reduce((sum, comment) => sum + (comment.value || 0), 0) /
+      comments.length;
     return Number(mean.toFixed(1));
-  }, [reviews]);
+  }, [comments]);
 
-  const handleSubmitReview = async (event) => {
+  const handleSubmitComment = async (event) => {
     event.preventDefault();
     if (!commentText.trim()) {
       setCommentError('Merci de saisir un commentaire.');
@@ -86,14 +89,17 @@ const DetailVideo = () => {
 
     try {
       const payload = {
-        videoId: id,
+        video_id: id,
         content: commentText.trim(),
         value: rating || 0,
       };
 
-      const response = await createReview(payload);
+      const response = await createComment(payload);
       if (response?.success && response?.data) {
-        setReviews((prev) => [response.data, ...prev]);
+        setComments((prev) => [
+          { ...payload, id: response.data.id },
+          ...prev,
+        ]);
       }
 
       setCommentText('');
@@ -137,7 +143,7 @@ const DetailVideo = () => {
   const videoUrl = video.URL ? `${API_URL}/${video.URL}` : null;
 
   return (
-    <div className="flex flex-1 items-stretch bg-slate-50">
+    <div className="flex flex-1 flex-col items-stretch bg-slate-50">
       <div className="mx-auto grid w-full max-w-6xl flex-1 gap-8 px-4 py-8 lg:grid-cols-[2fr_1fr]">
         {/* Zone vidéo */}
         <div className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
@@ -187,7 +193,7 @@ const DetailVideo = () => {
           </div>
 
           <form
-            onSubmit={handleSubmitReview}
+            onSubmit={handleSubmitComment}
             className="flex flex-col gap-3 rounded-xl bg-slate-50 p-4"
           >
             <label className="text-sm font-medium text-slate-800">
@@ -203,24 +209,57 @@ const DetailVideo = () => {
               <span className="text-sm text-rose-600">{commentError}</span>
             ) : null}
             <div className="flex justify-end items-center gap-3">
-              <button
-                type="submit"
-                disabled={submitting}
-                className="rounded-lg border border-transparent bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                {submitting ? 'Envoi...' : 'Envoyer'}
-              </button>
-              <button
+            <button
                 type="button"
                 onClick={handleCancel}
                 className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
               >
                 Annuler
               </button>
+              <button
+                type="submit"
+                disabled={submitting || !commentText.trim()}
+                className="rounded-lg border border-transparent bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {submitting ? 'Envoi...' : 'Envoyer'}
+              </button>
+              
             </div>
           </form>
         </div>
       </div>
+
+      {comments.length > 0 && (
+        <div className="mx-auto w-full max-w-6xl px-4 pb-8">
+          <div className="flex flex-col gap-3 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-slate-900">
+                Commentaires
+              </h2>
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
+                {comments.length} commentaire{comments.length > 1 ? 's' : ''}
+              </span>
+            </div>
+            <div className="flex flex-col gap-3 max-h-96 overflow-y-auto pr-1">
+              {comments.map((comment) => (
+                <div
+                  key={comment._id || comment.id || comment.content}
+                  className="rounded-lg bg-slate-50 p-3 shadow-sm ring-1 ring-slate-100"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="text-xs font-semibold text-slate-700">
+                      Utilisateur
+                    </div>
+                  </div>
+                  <p className="mt-2 text-sm text-slate-800 leading-relaxed">
+                    {comment.content || 'Pas de contenu'}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
