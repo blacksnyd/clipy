@@ -2,15 +2,16 @@ import { useEffect, useState } from 'react'
 import { getAllCategories } from '../services/categories.service'
 import { createVideo } from '../services/videos.service'
 import { validateVideoFile, validateVideoPayload } from '../services/validation.service'
-import { makeInputChangeHandler, makeVideoFileHandler } from '../utils/form.utils'
+import { makeInputChangeHandler, makeVideoFileHandler, makeImageFileHandler } from '../utils/form.utils'
 import Form from './Form'
 
-function ModalCreate({ onClose = null }) {
+function ModalCreate({ onClose = null, onVideoCreated = null }) {
   const [formData, setFormData] = useState({
     titre: '',
     categorie: '',
     description: '',
-    video: null
+    video: null,
+    cover: null
   })
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -33,9 +34,15 @@ function ModalCreate({ onClose = null }) {
   }, [])
 
   const handleChange = makeInputChangeHandler(setFormData)
-  const handleFileChange = makeVideoFileHandler({
+  const handleVideoChange = makeVideoFileHandler({
     setFormData,
     setError,
+    required: false
+  })
+  const handleCoverChange = makeImageFileHandler({
+    setFormData,
+    setError,
+    fieldName: 'cover',
     required: false
   })
 
@@ -60,6 +67,9 @@ function ModalCreate({ onClose = null }) {
     try {
       const uploadData = new FormData()
       uploadData.append('video', formData.video)
+      if (formData.cover) {
+        uploadData.append('cover', formData.cover)
+      }
       uploadData.append('title', formData.titre.trim())
       uploadData.append('description', formData.description.trim())
       uploadData.append('category_id', formData.categorie)
@@ -72,9 +82,16 @@ function ModalCreate({ onClose = null }) {
           titre: '',
           categorie: '',
           description: '',
-          video: null
+          video: null,
+          cover: null
         })
         setFileResetToken((prev) => prev + 1)
+        
+        // Appeler le callback pour recharger les vidéos
+        if (onVideoCreated) {
+          onVideoCreated()
+        }
+        
         if (onClose) {
           setTimeout(() => onClose(), 1500)
         }
@@ -100,7 +117,8 @@ function ModalCreate({ onClose = null }) {
           titre: '',
           categorie: '',
           description: '',
-          video: null
+          video: null,
+          cover: null
         })
         setError('')
         setSuccess('')
@@ -110,7 +128,8 @@ function ModalCreate({ onClose = null }) {
         }
       }}
       onChange={handleChange}
-      onFileChange={handleFileChange}
+      onFileChange={handleVideoChange}
+      onCoverChange={handleCoverChange}
       showFileInput
       submitLabel="Uploader la vidéo"
       submitLoadingLabel="Upload en cours..."
