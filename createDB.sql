@@ -18,7 +18,7 @@ CREATE TABLE videos (
    cover varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
    duration int NOT NULL,
    description text NOT NULL,
-   category_id int,
+   category_id int NOT NULL,
    user_id INT NOT NULL,
    FOREIGN KEY (category_id) REFERENCES categories(id),
    FOREIGN KEY (user_id) REFERENCES users(id)
