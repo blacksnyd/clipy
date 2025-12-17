@@ -11,6 +11,10 @@ import ModalBase from './components/ModalBase'
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [reloadTrigger, setReloadTrigger] = useState(0)
+  const [searchCriteria, setSearchCriteria] = useState({
+    searchTerm: '',
+    categoryId: 'all'
+  })
 
   const handleOpenModal = () => {
     setIsModalOpen(true)
@@ -25,12 +29,16 @@ function App() {
     setReloadTrigger(prev => prev + 1)
   }
 
+  const handleSearchChange = (criteria) => {
+    setSearchCriteria(criteria)
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">
-      <Header onOpenModal={handleOpenModal} />
+      <Header onOpenModal={handleOpenModal} onSearchChange={handleSearchChange} />
       <main className="flex flex-1">
         <Routes>
-          <Route path="/" element={<Homepage reloadTrigger={reloadTrigger} />} />
+          <Route path="/" element={<Homepage reloadTrigger={reloadTrigger} searchCriteria={searchCriteria} />} />
           <Route path="/video/:id" element={<DetailVideo />} />
         </Routes>
       </main>
