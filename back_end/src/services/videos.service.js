@@ -79,5 +79,4 @@ const create = async (data, video_url, cover_url, duration_rounded) => {
   };
 };
 
-
 export default {findAll, findById, update, destroy, create, findByTitle, findByCategory}
