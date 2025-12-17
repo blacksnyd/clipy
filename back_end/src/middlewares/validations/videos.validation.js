@@ -1,9 +1,7 @@
 import { z } from "zod";
 
 export const createVideoSchema = z.object({
-  title: z.string().min(3, "Le titre doit contenir au moins 3 caractères"),
-  description: z.string().optional(),
-  url: z.string().url("L'URL de la vidéo est invalide"),
+  title: z.string().min(5, "Le titre doit contenir au moins 5 caractères")
 });
 
 export const validate = (schema) => (req, res, next) => {
@@ -12,8 +10,8 @@ export const validate = (schema) => (req, res, next) => {
     next();
   } catch (err) {
     return res.status(400).json({
-      message: "Validation échouée"
-      errors: err.errors,
+      success: false,
+      errors: err.flatten().fieldErrors
     });
   }
 };
