@@ -1,5 +1,6 @@
 import db from '../config/db_pool.js';
 
+
 const findAll = async () => {
   const [rows] = await db.pool.execute('SELECT * FROM videos');
   return rows;
@@ -73,6 +74,7 @@ const destroy =  async (id) => {
   return rows.affectedRows;
 }
 
+
 const create = async (data, video_url, cover_url, duration_rounded) => {
   const [result] = await db.pool.execute(
     "INSERT INTO videos (title, URL, cover, duration, description, category_id) VALUES (?, ?, ?, ?, ?, ?)",
@@ -82,7 +84,7 @@ const create = async (data, video_url, cover_url, duration_rounded) => {
       cover_url ?? null,
       duration_rounded,
       data.description,
-      data.category_id ?? null
+      data.category_id
     ]
   );
 
@@ -96,6 +98,7 @@ const create = async (data, video_url, cover_url, duration_rounded) => {
     category_id: data.category_id
   };
 };
+
 
 
 export default {findAll, findById, update, destroy, create, findByTitle, findByCategory}
