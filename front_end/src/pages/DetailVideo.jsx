@@ -43,9 +43,12 @@ const DetailVideo = () => {
                 Titre de la vidéo
               </h1>
             </div>
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">
+            <span className="inline-flex min-w-[96px] items-center justify-center rounded-full bg-slate-100 p-4 text-sm text-slate-600 text-center">
               {average} / 5
             </span>
+            <button className="rounded-lg transition hover:scale-110">
+              <img src={editIcon} alt="edit" className="w-10 h-10" />
+            </button>
           </div>
 
           <p className="text-base text-slate-700 leading-relaxed">
@@ -71,9 +74,7 @@ const DetailVideo = () => {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <button className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700">
-              <img src={editIcon} alt="edit" />
-            </button>
+            
           </div>
         </div>
       </div>
