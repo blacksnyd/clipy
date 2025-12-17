@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Rating } from '@smastrom/react-rating';
 import { getVideoById } from '../services/videos.service';
-import { getReviewsByVideo } from '../services/reviews.service';
+import editIcon from '../assets/editor-icone.png';
 
 const DetailVideo = () => {
   const { id } = useParams();
@@ -118,9 +118,12 @@ const DetailVideo = () => {
                 {video.title || 'Sans titre'}
               </h1>
             </div>
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">
+            <span className="inline-flex min-w-[96px] items-center justify-center rounded-full bg-slate-100 p-4 text-sm text-slate-600 text-center">
               {average} / 5
             </span>
+            <button className="rounded-lg transition hover:scale-110">
+              <img src={editIcon} alt="edit" className="w-10 h-10" />
+            </button>
           </div>
 
           <p className="text-base text-slate-700 leading-relaxed">
@@ -143,6 +146,12 @@ const DetailVideo = () => {
               Note moyenne : <span className="font-semibold">{average}</span> /
               5
             </p>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            {/* <button className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700">
+              Lire la vidéo
+            </button> */}
           </div>
         </div>
       </div>
