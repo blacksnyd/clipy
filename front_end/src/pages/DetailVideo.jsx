@@ -1,34 +1,110 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { Rating } from '@smastrom/react-rating';
+import { getVideoById } from '../services/videos.service';
+import { getReviewsByVideo } from '../services/reviews.service';
 
 const DetailVideo = () => {
-  // A remplacer par le fetch
-  const allRatings = [4, 5, 3, 4, 5];
-
+  const { id } = useParams();
+  const [video, setVideo] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [rating, setRating] = useState(0);
 
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+  useEffect(() => {
+    const loadVideoData = async () => {
+      if (!id) {
+        setError('ID de vidéo manquant');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError('');
+
+        // Charger la vidéo d'abord (prioritaire)
+        const videoResponse = await getVideoById(id);
+
+        if (videoResponse.success && videoResponse.data) {
+          setVideo(videoResponse.data);
+        } else {
+          setError(videoResponse.message || 'Vidéo non trouvée');
+          setLoading(false);
+          return;
+        }
+
+        // Charger les reviews séparément (non bloquant)
+        try {
+          const reviewsResponse = await getReviewsByVideo(id);
+          if (reviewsResponse.success && reviewsResponse.data) {
+            setReviews(reviewsResponse.data);
+          }
+        } catch (reviewsError) {
+          console.warn('Erreur lors du chargement des reviews (non bloquant):', reviewsError);
+          // On continue même si les reviews ne se chargent pas
+          setReviews([]);
+        }
+      } catch (err) {
+        console.error('Erreur lors du chargement de la vidéo:', err);
+        setError(err.message || 'Erreur lors du chargement de la vidéo');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadVideoData();
+  }, [id]);
+
   const average = useMemo(() => {
-    if (!allRatings.length) return 0;
-    const mean =
-      allRatings.reduce((sum, value) => sum + value, 0) / allRatings.length;
+    if (!reviews.length) return 0;
+    const mean = reviews.reduce((sum, review) => sum + (review.value || 0), 0) / reviews.length;
     return Number(mean.toFixed(1));
-  }, [allRatings]);
+  }, [reviews]);
+
+  if (loading) {
+    return (
+      <div className="flex flex-1 items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <p className="text-lg text-slate-600">Chargement de la vidéo...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !video) {
+    return (
+      <div className="flex flex-1 items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <p className="text-lg text-rose-600">{error || 'Vidéo non trouvée'}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const videoUrl = video.URL ? `${API_URL}/${video.URL}` : null;
 
   return (
     <div className="flex flex-1 items-stretch bg-slate-50">
       <div className="mx-auto grid w-full max-w-6xl flex-1 gap-8 px-4 py-8 lg:grid-cols-[2fr_1fr]">
         {/* Zone vidéo */}
         <div className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
-          
-            <iframe
+          {videoUrl ? (
+            <video
               className="h-full w-full"
-              src="https://www.youtube.com/embed/jOQNpF5itew"
-              title="YouTube video player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          
+              controls
+              src={videoUrl}
+            >
+              Votre navigateur ne supporte pas la lecture de vidéos.
+            </video>
+          ) : (
+            <div className="flex h-96 items-center justify-center bg-slate-200">
+              <p className="text-slate-500">Vidéo non disponible</p>
+            </div>
+          )}
         </div>
 
         {/* Détails */}
@@ -39,7 +115,7 @@ const DetailVideo = () => {
                 Vidéo
               </p>
               <h1 className="text-2xl font-semibold text-slate-900">
-                Titre de la vidéo
+                {video.title || 'Sans titre'}
               </h1>
             </div>
             <span className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">
@@ -48,7 +124,7 @@ const DetailVideo = () => {
           </div>
 
           <p className="text-base text-slate-700 leading-relaxed">
-            Description de la vidéo.
+            {video.description || 'Aucune description disponible.'}
           </p>
 
           <div className="flex flex-col gap-3 rounded-xl bg-slate-50 p-4">
@@ -67,12 +143,6 @@ const DetailVideo = () => {
               Note moyenne : <span className="font-semibold">{average}</span> /
               5
             </p>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            {/* <button className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700">
-              Lire la vidéo
-            </button> */}
           </div>
         </div>
       </div>
