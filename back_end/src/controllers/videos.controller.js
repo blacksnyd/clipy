@@ -1,6 +1,9 @@
 import { success } from "zod";
 import db from "../config/db_pool.js";
 import videosService from '../services/videos.service.js';
+import categoriesService from "../services/categories.service.js";
+
+
 import {getVideoDurationInSeconds} from 'get-video-duration';
 
 export const all = async (req, res) => {
@@ -153,16 +156,24 @@ export const deleteVideo = async (req, res) => {
   }
 }
 export const create = async (req, res) => {
-  // On supprime le console.log(req.file) qui t'induisait en erreur
-
   try {
     const video_file = req.files?.video?.[0];
     const cover_file = req.files?.cover?.[0] ?? null;
 
+    const category_id = req.body.category_id;
+
+    if (category_id) {
+      const categoryExists = await categoriesService.findById(category_id);
+      if (!categoryExists) {
+          return res.status(404).json({
+              success: false,
+              message: "La catégorie spécifiée n'existe pas."
+          });
+      }
+    }
     if (!video_file) {
       return res.status(400).json({
-        success: false,
-        message: "Fichier vidéo manquant"
+        success: false, message: "Fichier vidéo manquant"
       });
     }
 
