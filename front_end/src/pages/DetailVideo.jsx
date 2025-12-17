@@ -1,54 +1,238 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Rating } from '@smastrom/react-rating';
+import { getVideoById } from '../services/videos.service';
+import {
+  getCommentsByVideo,
+  createComment,
+} from '../services/comments.service';
+import {
+  getReviewsByVideo,
+  createReview,
+} from '../services/reviews.service';
+import ModalBase from '../components/ModalBase';
+import ModalUpdate from '../components/ModalUpdate';
+import editIcon from '../assets/editor-icone.png';
 
 const DetailVideo = () => {
-  // A remplacer par le fetch
-  const allRatings = [4, 5, 3, 4, 5];
-
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [video, setVideo] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [rating, setRating] = useState(0);
+  const [commentText, setCommentText] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [commentError, setCommentError] = useState('');
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+  useEffect(() => {
+    const loadVideoData = async () => {
+      if (!id) {
+        setError('ID de vidéo manquant');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError('');
+
+        // Charger la vidéo d'abord (prioritaire)
+        const videoResponse = await getVideoById(id);
+
+        if (videoResponse.success && videoResponse.data) {
+          setVideo(videoResponse.data);
+        } else {
+          setError(videoResponse.message || 'Vidéo non trouvée');
+          setLoading(false);
+          return;
+        }
+
+        // Charger les reviews et commentaires séparément (non bloquant)
+        try {
+          const reviewsResponse = await getReviewsByVideo(id);
+          if (reviewsResponse.success && reviewsResponse.data) {
+            setReviews(reviewsResponse.data);
+          }
+        } catch (reviewsError) {
+          console.warn(
+            'Erreur lors du chargement des reviews (non bloquant):',
+            reviewsError
+          );
+          setReviews([]);
+        }
+
+        try {
+          const commentsResponse = await getCommentsByVideo(id);
+          if (commentsResponse.success && commentsResponse.data) {
+            setComments(commentsResponse.data);
+          }
+        } catch (commentsError) {
+          console.warn(
+            'Erreur lors du chargement des commentaires (non bloquant):',
+            commentsError
+          );
+          setComments([]);
+        }
+      } catch (err) {
+        console.error('Erreur lors du chargement de la vidéo:', err);
+        setError(err.message || 'Erreur lors du chargement de la vidéo');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadVideoData();
+  }, [id]);
 
   const average = useMemo(() => {
-    if (!allRatings.length) return 0;
+    if (!reviews.length) return 0;
     const mean =
-      allRatings.reduce((sum, value) => sum + value, 0) / allRatings.length;
+      reviews.reduce((sum, review) => sum + (review.value || 0), 0) /
+      reviews.length;
     return Number(mean.toFixed(1));
-  }, [allRatings]);
+  }, [reviews]);
+
+  const handleSubmitComment = async (event) => {
+    event.preventDefault();
+    if (!commentText.trim()) {
+      setCommentError('Merci de saisir un commentaire.');
+      return;
+    }
+
+    setSubmitting(true);
+    setCommentError('');
+
+    try {
+      // Créer le commentaire
+      const commentPayload = {
+        video_id: parseInt(id),
+        content: commentText.trim(),
+      };
+
+      const commentResponse = await createComment(commentPayload);
+      if (commentResponse?.success && commentResponse?.data) {
+        // Recharger les commentaires pour avoir les données complètes
+        const commentsResponse = await getCommentsByVideo(id);
+        if (commentsResponse.success && commentsResponse.data) {
+          setComments(commentsResponse.data);
+        }
+        
+        // Réinitialiser le formulaire
+        setCommentText('');
+        setCommentError('');
+      } else {
+        setCommentError(commentResponse?.message || "Erreur lors de l'envoi du commentaire.");
+      }
+    } catch (err) {
+      setCommentError(
+        err?.message || "Erreur lors de l'envoi du commentaire."
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSubmitRating = async () => {
+    if (!rating || rating <= 0) {
+      return;
+    }
+
+    setSubmitting(true);
+    setCommentError('');
+
+    try {
+      const reviewPayload = {
+        video_id: parseInt(id),
+        rating: rating,
+      };
+
+      const reviewResponse = await createReview(reviewPayload);
+      if (reviewResponse?.success && reviewResponse?.data) {
+        // Recharger les reviews pour mettre à jour la moyenne
+        const reviewsResponse = await getReviewsByVideo(id);
+        if (reviewsResponse.success && reviewsResponse.data) {
+          setReviews(reviewsResponse.data);
+        }
+        setRating(0);
+      }
+    } catch (err) {
+      setCommentError(
+        err?.message || "Erreur lors de l'envoi de la note."
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setCommentText('');
+    setCommentError('');
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-1 items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <p className="text-lg text-slate-600">Chargement de la vidéo...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !video) {
+    return (
+      <div className="flex flex-1 items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <p className="text-lg text-rose-600">
+            {error || 'Vidéo non trouvée'}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const videoUrl = video.URL ? `${API_URL}/${video.URL}` : null;
 
   return (
-    <div className="flex flex-1 items-stretch bg-slate-50">
+    <div className="flex flex-1 flex-col items-stretch bg-slate-50">
       <div className="mx-auto grid w-full max-w-6xl flex-1 gap-8 px-4 py-8 lg:grid-cols-[2fr_1fr]">
         {/* Zone vidéo */}
         <div className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
-          
-            <iframe
-              className="h-full w-full"
-              src="https://www.youtube.com/embed/jOQNpF5itew"
-              title="YouTube video player"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          
+          {videoUrl ? (
+            <video className="h-full w-full" controls src={videoUrl}>
+              Votre navigateur ne supporte pas la lecture de vidéos.
+            </video>
+          ) : (
+            <div className="flex h-96 items-center justify-center bg-slate-200">
+              <p className="text-slate-500">Vidéo non disponible</p>
+            </div>
+          )}
         </div>
 
         {/* Détails */}
         <div className="flex h-full w-full flex-col gap-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-sm uppercase tracking-wide text-slate-500">
-                Vidéo
-              </p>
+            <div className="flex w-full items-center justify-between gap-4">
               <h1 className="text-2xl font-semibold text-slate-900">
-                Titre de la vidéo
+                {video.title || 'Sans titre'}
               </h1>
+              <button 
+                onClick={() => setIsEditModalOpen(true)}
+                className="rounded-lg transition hover:scale-110 ml-auto"
+              >
+                <img src={editIcon} alt="edit" className="w-6 h-6" />
+              </button>
             </div>
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">
-              {average} / 5
-            </span>
           </div>
 
           <p className="text-base text-slate-700 leading-relaxed">
-            Description de la vidéo.
+            {video.description || 'Aucune description disponible.'}
           </p>
 
           <div className="flex flex-col gap-3 rounded-xl bg-slate-50 p-4">
@@ -62,20 +246,115 @@ const DetailVideo = () => {
               <span className="text-sm text-slate-700">
                 Ta note : {rating || '-'} / 5
               </span>
+              {rating > 0 && (
+                <button
+                  type="button"
+                  onClick={handleSubmitRating}
+                  disabled={submitting}
+                  className="ml-auto rounded-lg border border-transparent bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {submitting ? 'Envoi...' : 'Noter'}
+                </button>
+              )}
             </div>
-            <p className="text-sm text-slate-700">
-              Note moyenne : <span className="font-semibold">{average}</span> /
-              5
-            </p>
+            <span className="inline-flex min-w-[96px] items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600 text-center">
+              {average} / 5
+            </span>
           </div>
 
-          <div className="flex flex-wrap gap-3">
-            {/* <button className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700">
-              Lire la vidéo
-            </button> */}
-          </div>
+          <form
+            onSubmit={handleSubmitComment}
+            className="flex flex-col gap-3 rounded-xl bg-slate-50 p-4"
+          >
+            <label className="text-sm font-medium text-slate-800">
+              Ajouter un commentaire
+            </label>
+            <textarea
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              className="min-h-[80px] w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 resize-none"
+              placeholder="Partage ton avis sur la vidéo"
+            />
+            {commentError ? (
+              <span className="text-sm text-rose-600">{commentError}</span>
+            ) : null}
+            <div className="flex justify-end items-center gap-3">
+            <button
+                type="button"
+                onClick={handleCancel}
+                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+              >
+                Annuler
+              </button>
+              <button
+                type="submit"
+                disabled={submitting || !commentText.trim()}
+                className="rounded-lg border border-transparent bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {submitting ? 'Envoi...' : 'Envoyer'}
+              </button>
+              
+            </div>
+          </form>
         </div>
       </div>
+
+      {comments.length > 0 && (
+        <div className="mx-auto w-full max-w-6xl px-4 pb-8">
+          <div className="flex flex-col gap-3 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-slate-900">
+                Commentaires
+              </h2>
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
+                {comments.length} commentaire{comments.length > 1 ? 's' : ''}
+              </span>
+            </div>
+            <div className="flex flex-col gap-3 max-h-96 overflow-y-auto pr-1">
+              {comments.map((comment) => (
+                <div
+                  key={comment._id || comment.id || comment.content}
+                  className="rounded-lg bg-slate-50 p-3 shadow-sm ring-1 ring-slate-100"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="text-xs font-semibold text-slate-700">
+                      Utilisateur
+                    </div>
+                  </div>
+                  <p className="mt-2 text-sm text-slate-800 leading-relaxed">
+                    {comment.content || 'Pas de contenu'}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <ModalBase isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
+        <ModalUpdate 
+          videoId={id} 
+          onClose={() => {
+            setIsEditModalOpen(false);
+            // Recharger les données de la vidéo après update
+            const reloadVideoData = async () => {
+              try {
+                const videoResponse = await getVideoById(id);
+                if (videoResponse.success && videoResponse.data) {
+                  setVideo(videoResponse.data);
+                }
+              } catch (err) {
+                console.error('Erreur lors du rechargement de la vidéo:', err);
+              }
+            };
+            reloadVideoData();
+          }}
+          onDeleteSuccess={() => {
+            // Rediriger vers la homepage après suppression
+            navigate('/');
+          }}
+        />
+      </ModalBase>
     </div>
   );
 };

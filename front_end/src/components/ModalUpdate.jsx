@@ -5,7 +5,7 @@ import { validateVideoPayload } from '../services/validation.service'
 import { makeInputChangeHandler, makeImageFileHandler } from '../utils/form.utils'
 import Form from './Form'
 
-function ModalUpdate({ videoId, onClose = null }) {
+function ModalUpdate({ videoId, onClose = null, onDeleteSuccess = null }) {
   const [formData, setFormData] = useState({
     titre: '',
     categorie: '',
@@ -17,6 +17,7 @@ function ModalUpdate({ videoId, onClose = null }) {
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
   const [categories, setCategories] = useState([])
+  const [fileResetToken, setFileResetToken] = useState(0)
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -78,16 +79,30 @@ function ModalUpdate({ videoId, onClose = null }) {
     setSuccess('')
 
     try {
-      const updateData = {
-        title: formData.titre.trim(),
-        description: formData.description.trim(),
-        category_id: parseInt(formData.categorie)
+      const uploadData = new FormData()
+      
+      // Ajouter seulement la cover si elle est fournie (pas de vidéo)
+      if (formData.cover) {
+        uploadData.append('cover', formData.cover)
       }
+      
+      // Toujours ajouter les données texte
+      uploadData.append('title', formData.titre.trim())
+      uploadData.append('description', formData.description.trim())
+      uploadData.append('category_id', formData.categorie)
 
-      const response = await updateVideo(videoId, updateData)
+      const response = await updateVideo(videoId, uploadData)
 
       if (response.success) {
         setSuccess('Vidéo mise à jour avec succès !')
+        setFormData({
+          titre: '',
+          categorie: '',
+          description: '',
+          video: null,
+          cover: null
+        })
+        setFileResetToken((prev) => prev + 1)
         if (onClose) {
           setTimeout(() => onClose(), 1500)
         }
@@ -120,6 +135,15 @@ function ModalUpdate({ videoId, onClose = null }) {
           video: null,
           cover: null
         })
+        // Appeler le callback après un court délai pour laisser le temps de voir le message
+        if (onDeleteSuccess) {
+          setTimeout(() => {
+            onClose?.()
+            onDeleteSuccess()
+          }, 1500)
+        } else if (onClose) {
+          setTimeout(() => onClose(), 1500)
+        }
       }
     } catch (err) {
       setError(err.message || 'Erreur lors de la suppression de la vidéo.')
@@ -147,6 +171,7 @@ function ModalUpdate({ videoId, onClose = null }) {
         })
         setError('')
         setSuccess('')
+        setFileResetToken((prev) => prev + 1)
         if (onClose) {
           onClose()
         }
@@ -154,10 +179,13 @@ function ModalUpdate({ videoId, onClose = null }) {
       onDelete={handleDelete}
       onChange={handleChange}
       onCoverChange={handleCoverChange}
+      showFileInput
+      showVideoInput={false}
       submitLabel="Mettre à jour la vidéo"
       submitLoadingLabel="Mise à jour en cours..."
       deleteLabel="Supprimer la vidéo"
       deleteLoadingLabel="Suppression..."
+      fileResetToken={fileResetToken}
     />
   )
 }

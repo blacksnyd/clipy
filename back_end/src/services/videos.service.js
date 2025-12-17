@@ -33,26 +33,44 @@ const findByCategory = async (category_id) => {
 };
 
 const update = async (id, videoData) => {
-  const { title, URL, duration, description, category_id } = videoData;
+  const { title, URL, duration, description, category_id, cover } = videoData;
 
   const [result] = await db.pool.execute(
     `UPDATE videos
-     SET title = ?, URL = ?, duration = ?, description = ?, category_id = ?
+     SET title = ?, URL = ?, duration = ?, description = ?, category_id = ?, cover = ?
      WHERE id = ?`,
-    [title, URL, duration, description, category_id, id]
+    [title, URL, duration, description, category_id, cover, id]
   );
-  console.log(result);
 
+  // Récupérer la vidéo mise à jour
+  const [rows] = await db.pool.execute(
+    'SELECT * FROM videos WHERE id = ?',
+    [id]
+  );
 
-  return result;
+  return rows[0];
 };
 
 const destroy =  async (id) => {
-  //execute la requete préparée sql delete
-      const [rows] = await db.pool.execute(
-        "DELETE FROM videos WHERE id=?",
-        [id]
-      );
+  // Supprimer d'abord les commentaires associés à la vidéo
+  await db.pool.execute(
+    "DELETE FROM comments WHERE video_id = ?",
+    [id]
+  );
+  
+  // Supprimer ensuite les ratings associés à la vidéo
+  await db.pool.execute(
+    "DELETE FROM ratings WHERE video_id = ?",
+    [id]
+  );
+  
+  // Enfin, supprimer la vidéo
+  const [rows] = await db.pool.execute(
+    "DELETE FROM videos WHERE id = ?",
+    [id]
+  );
+  
+  return rows.affectedRows;
 }
 
 const create = async (data, video_url, cover_url, duration_rounded) => {

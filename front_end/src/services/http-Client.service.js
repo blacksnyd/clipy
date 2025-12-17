@@ -10,10 +10,25 @@ export async function request(path, options={}) {
       });
 
     if (!response.ok) {
-        const error = await response.json();
+        let error;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            error = await response.json();
+        } else {
+            const text = await response.text();
+            error = {
+                success: false,
+                message: `Erreur ${response.status}: ${text.substring(0, 100)}`
+            };
+        }
         throw error;
     }
 
-    return response.json();
-    
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+        return response.json();
+    } else {
+        // Pour les réponses vides (comme 204), retourner un objet success
+        return { success: true };
+    }
 }
