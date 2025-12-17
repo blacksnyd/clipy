@@ -153,23 +153,23 @@ export const updateVideo = async (req,res) => {
 export const deleteVideo = async (req, res) => {
   try {
     const id = Number(req.params.id);
-    
+
     if (isNaN(id)) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
         message: "ID invalide"
       })
     }
-    
+
     await videosService.destroy(id);
-    
+
     return res.status(200).json({
       success: true,
       message: "Vidéo bien supprimée",
     });
   } catch (error) {
     console.error("DELETE ERROR:", error);
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
       message: "Erreur serveur"
     })
