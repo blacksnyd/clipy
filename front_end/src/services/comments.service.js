@@ -1,4 +1,4 @@
-import { request } from './http-Client.service.js';
+import { request } from './http-client.service.js';
 
 export const getCommentsByVideo = (videoId) =>
   request(`/comments/${videoId}`);
