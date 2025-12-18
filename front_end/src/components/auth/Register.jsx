@@ -71,6 +71,21 @@ const Register = ({ onClose }) => {
         />
       </div>
 
+      <div className="space-y-1">
+        <label htmlFor="confirmPassword" className="text-sm font-medium text-slate-700">
+          Confirmer le mot de passe
+        </label>
+        <input
+          id="confirmPassword"
+          name="confirmPassword"
+          type="password"
+          className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          value={formData.confirmPassword}
+          onChange={handleChange}
+          required
+        />
+      </div>
+
       <div className="flex items-center justify-end gap-2">
         <button
           type="button"
