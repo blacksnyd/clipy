@@ -5,27 +5,35 @@ import Header from './components/Header'
 import Footer from './components/Footer'
 import DetailVideo from './pages/DetailVideo'
 import Homepage from './pages/Homepage'
-import ModalCreate from './components/ModalCreate'
-import ModalBase from './components/ModalBase'
+import ModalCreate from './components/modals/ModalCreate'
+import ModalBase from './components/modals/ModalBase'
+import Register from './components/auth/Register'
 import { makeCloseModalHandler, makeOpenModalHandler, makeVideoCreatedHandler } from './utils/modal.utils'
 import { makeSearchChangeHandler } from './utils/search.utils'
 
 function App() {
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
   const [reloadTrigger, setReloadTrigger] = useState(0)
   const [searchCriteria, setSearchCriteria] = useState({
     searchTerm: '',
     categoryId: 'all'
   })
 
-  const handleOpenModal = makeOpenModalHandler(setIsModalOpen)
-  const handleCloseModal = makeCloseModalHandler(setIsModalOpen)
+  const handleOpenCreateModal = makeOpenModalHandler(setIsCreateModalOpen)
+  const handleCloseCreateModal = makeCloseModalHandler(setIsCreateModalOpen)
+  const handleOpenRegisterModal = makeOpenModalHandler(setIsRegisterModalOpen)
+  const handleCloseRegisterModal = makeCloseModalHandler(setIsRegisterModalOpen)
   const handleVideoCreated = makeVideoCreatedHandler(setReloadTrigger)
   const handleSearchChange = makeSearchChangeHandler(setSearchCriteria)
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">
-      <Header onOpenModal={handleOpenModal} onSearchChange={handleSearchChange} />
+      <Header
+        onOpenModal={handleOpenCreateModal}
+        onSearchChange={handleSearchChange}
+        onOpenRegister={handleOpenRegisterModal}
+      />
       <main className="flex flex-1">
         <Routes>
           <Route path="/" element={<Homepage reloadTrigger={reloadTrigger} searchCriteria={searchCriteria} />} />
@@ -34,8 +42,12 @@ function App() {
       </main>
       <Footer />
 
-      <ModalBase isOpen={isModalOpen} onClose={handleCloseModal}>
-        <ModalCreate videoId={null} onClose={handleCloseModal} onVideoCreated={handleVideoCreated} />
+      <ModalBase isOpen={isRegisterModalOpen} onClose={handleCloseRegisterModal}>
+        <Register onClose={handleCloseRegisterModal} />
+      </ModalBase>
+
+      <ModalBase isOpen={isCreateModalOpen} onClose={handleCloseCreateModal}>
+        <ModalCreate videoId={null} onClose={handleCloseCreateModal} onVideoCreated={handleVideoCreated} />
       </ModalBase>
     </div>
   )
