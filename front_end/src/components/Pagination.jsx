@@ -10,17 +10,17 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
     pages.push(
       <button
         key={i}
-        className={`join-item btn ${i === currentPage ? 'btn-primary' : ''}`}
+        className={`btn ${i === currentPage ? 'bg-sky-600 text-white border border-slate-200' : 'bg-white text-gray-800 border border-slate-200'}`}
         onClick={() => onPageChange(i)}
       >
-        {i}
+        {i} 
       </button>
     )
   }
 
   return (
-    <div className="join mt-4 justify-center">
-      {pages}
+    <div className="mt-4 flex flex-wrap justify-center gap-3">
+      {pages} 
     </div>
   )
 }
