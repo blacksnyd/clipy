@@ -25,9 +25,9 @@ function ModalShell({ isOpen, onClose, children, maxWidth = 'max-w-2xl', padding
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={handleOverlayClick}>
+    <div className="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={handleOverlayClick}>
       <div
-        className={`relative mx-4 w-full ${maxWidth} rounded-lg bg-white ${padding} shadow-xl`}
+        className={`modal-panel relative mx-4 w-full ${maxWidth} rounded-lg bg-white ${padding} shadow-xl`}
         onClick={handleContentClick}
       >
         <button

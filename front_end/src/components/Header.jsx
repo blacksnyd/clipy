@@ -1,11 +1,21 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import SearchBar from './SearchBar';
 import { isAuthenticated, logout } from '../services/auth.service';
 import logo from '../assets/logo.png';
 
 const Header = ({ onOpenModal, onSearchChange, onOpenRegister, onOpenLogin}) => {
   const authenticated = isAuthenticated();
+  const location = useLocation();
+  const isDetailPage = location.pathname.startsWith('/video/');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const updateIsMobile = () => setIsMobile(window.matchMedia('(max-width: 768px)').matches);
+    updateIsMobile();
+    window.addEventListener('resize', updateIsMobile);
+    return () => window.removeEventListener('resize', updateIsMobile);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -26,9 +36,11 @@ const Header = ({ onOpenModal, onSearchChange, onOpenRegister, onOpenLogin}) => 
           </Link>
         </div>
 
-        <div className="w-full md:max-w-xl">
-          <SearchBar onSearchChange={onSearchChange} />
-        </div>
+        {!(isDetailPage && isMobile) && (
+          <div className="w-full md:max-w-xl">
+            <SearchBar onSearchChange={onSearchChange} />
+          </div>
+        )}
 
         <div className="flex items-center gap-3">
           {!authenticated && (
