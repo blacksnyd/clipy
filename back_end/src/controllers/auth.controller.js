@@ -6,7 +6,7 @@ import { success } from 'zod';
 export async function registerController(req, res, next) {
     try {
             //appel au auth.service.register
-            const user = await register(req.body)
+            const user = await register(req.validated);
             //la response
             res.status(201).json({
                 success: true,
@@ -22,9 +22,9 @@ export async function registerController(req, res, next) {
 export async function loginController (req, res, next) {
     
     try {
-        const {username, email ,password} = req.body;
+        // const {username, email ,password} = req.body;
 
-        const user = await login(req.body)
+        const user = await login(req.validated)
 
         res.status(200).json({
             success: true,
