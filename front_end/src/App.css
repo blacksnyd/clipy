@@ -20,3 +20,24 @@ body {
   background: transparent;
 }
 
+/* Boutons primaires (bleu sky) réutilisables */
+.btn-sky {
+  @apply rounded-lg bg-sky-600 font-semibold text-white shadow-sm transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-70;
+}
+
+.btn-sky-sm {
+  @apply px-3 py-1.5 text-xs;
+}
+
+.btn-sky-md {
+  @apply px-3 py-2 text-sm;
+}
+
+.btn-sky-lg {
+  @apply px-4 py-2 text-sm;
+}
+
+.btn-sky-xl {
+  @apply px-4 py-2.5 text-sm;
+}
+

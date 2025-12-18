@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { getAllCategories } from '../services/categories.service'
-import { deleteVideo, getVideoById, updateVideo } from '../services/videos.service'
-import { validateVideoPayload } from '../services/validation.service'
-import { makeInputChangeHandler, makeImageFileHandler } from '../utils/form.utils'
-import Form from './Form'
+import { getAllCategories } from '../../services/categories.service'
+import { deleteVideo, getVideoById, updateVideo } from '../../services/videos.service'
+import { validateVideoPayload } from '../../services/validation.service'
+import { makeInputChangeHandler, makeImageFileHandler } from '../../utils/form.utils'
+import Form from '../tools/Form'
 
 function ModalUpdate({ videoId, onClose = null, onDeleteSuccess = null }) {
   const [formData, setFormData] = useState({
