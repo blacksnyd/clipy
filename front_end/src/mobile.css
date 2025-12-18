@@ -187,4 +187,13 @@
   .mt-4.flex.flex-wrap.justify-center.gap-3 button {
     flex: 1 1 calc(50% - 0.5rem);
   }
+
+  /* Detail page: deux boutons sur une ligne, largeur totale du textarea */
+  .flex.flex-col.gap-3.rounded-xl.bg-slate-50.p-4 .flex.justify-end.items-center.gap-3 {
+    width: 100%;
+  }
+
+  .flex.flex-col.gap-3.rounded-xl.bg-slate-50.p-4 .flex.justify-end.items-center.gap-3 button {
+    flex: 1 1 0;
+  }
 }
