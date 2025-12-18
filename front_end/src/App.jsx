@@ -26,8 +26,12 @@ function App() {
   const handleSearchChange = makeSearchChangeHandler(setSearchCriteria)
 
   const renderModalContent = () => {
-    if (activeModal === 'login') return <Login onClose={handleCloseModal} />
-    if (activeModal === 'register') return <Register onClose={handleCloseModal} />
+    if (activeModal === 'login') {
+      return <Login onClose={handleCloseModal} onSwitchToRegister={handleOpenModal('register')} />
+    }
+    if (activeModal === 'register') {
+      return <Register onClose={handleCloseModal} onSwitchToLogin={handleOpenModal('login')} />
+    }
     if (activeModal === 'create') {
       return <ModalCreate videoId={null} onClose={handleCloseModal} onVideoCreated={handleVideoCreated} />
     }
