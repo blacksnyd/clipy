@@ -1,6 +1,6 @@
 import { request } from './http-client.service.js';
 
-export const getAllVideos = () => request('/videos');
+export const getAllVideos = (page) => request(`/videos?page=${page}`);
 
 export const getVideoById = (id) => request(`/videos/${id}`);
 
@@ -27,5 +27,3 @@ export const deleteVideo = (id) => {
         method: 'DELETE',
     });
 };
-
-

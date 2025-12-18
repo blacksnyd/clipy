@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import CardVideo from '../components/CardVideo'
 import { getAllVideos, getVideosByTitle, getVideosByCategory } from '../services/videos.service'
 import { getReviewsByVideo } from '../services/reviews.service'
+import Pagination from '../components/Pagination'
 
 const Homepage = ({ onCardClick, reloadTrigger = 0, searchCriteria = { searchTerm: '', categoryId: 'all' } }) => {
   const [videos, setVideos] = useState([])
@@ -10,56 +11,50 @@ const Homepage = ({ onCardClick, reloadTrigger = 0, searchCriteria = { searchTer
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const navigate = useNavigate()
+  const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1 });
+  const { currentPage, totalPages } = pagination;
 
   useEffect(() => {
     const loadVideos = async () => {
       try {
         setLoading(true)
         setError('')
-        
+
         let response
         const hasSearchTerm = searchCriteria.searchTerm && searchCriteria.searchTerm.trim() !== ''
         const hasCategory = searchCriteria.categoryId && searchCriteria.categoryId !== 'all'
-        
-        // Si les deux critères sont renseignés : recherche par titre puis filtrage par catégorie
+
         if (hasSearchTerm && hasCategory) {
           response = await getVideosByTitle(searchCriteria.searchTerm.trim())
           if (response.success && response.data) {
-            // S'assurer que response.data est un tableau
             const videosArray = Array.isArray(response.data) ? response.data : []
-            // Filtrer les résultats par catégorie côté frontend
             const filteredVideos = videosArray.filter(
               video => video.category_id === parseInt(searchCriteria.categoryId)
             )
             setVideos(filteredVideos)
-            
             if (filteredVideos.length === 0) {
               setError('Aucune vidéo trouvée avec ces critères.')
               setVideosWithRatings([])
-              setLoading(false)
               return
             }
-            
-            // Charger les reviews pour chaque vidéo filtrée
             const videosWithRatingsData = await Promise.all(
               filteredVideos.map(async (video) => {
                 try {
                   const reviewsResponse = await getReviewsByVideo(video.id)
-                  const reviews = reviewsResponse.success && reviewsResponse.data 
+                  const reviews = reviewsResponse.success && reviewsResponse.data
                     ? (Array.isArray(reviewsResponse.data) ? reviewsResponse.data : [])
                     : []
-                  
+
                   const averageRating = reviews.length > 0
                     ? reviews.reduce((sum, review) => sum + (review.value || 0), 0) / reviews.length
                     : 0
-                  
+
                   return {
                     ...video,
                     averageRating: Number(averageRating.toFixed(1)),
                     ratingCount: reviews.length
                   }
-                } catch (err) {
-                  console.warn(`Erreur lors du chargement des reviews pour la vidéo ${video.id}:`, err)
+                } catch {
                   return {
                     ...video,
                     averageRating: 0,
@@ -68,50 +63,46 @@ const Homepage = ({ onCardClick, reloadTrigger = 0, searchCriteria = { searchTer
                 }
               })
             )
-            
             setVideosWithRatings(videosWithRatingsData)
-            setLoading(false)
             return
           }
-        }
-        // Si seulement une recherche par titre est spécifiée
-        else if (hasSearchTerm) {
+        } else if (hasSearchTerm) {
           response = await getVideosByTitle(searchCriteria.searchTerm.trim())
-        }
-        // Si seulement une catégorie spécifique est sélectionnée
-        else if (hasCategory) {
+        } else if (hasCategory) {
           response = await getVideosByCategory(searchCriteria.categoryId)
+        } else {
+          response = await getAllVideos(currentPage)
         }
-        // Sinon, charger toutes les vidéos
-        else {
-          response = await getAllVideos()
-        }
-        
+
         if (response.success && response.data) {
-          // S'assurer que response.data est un tableau (défense en profondeur)
-          const videosArray = Array.isArray(response.data) ? response.data : []
+          const videosArray = Array.isArray(response.data.videos) ? response.data.videos : []
           setVideos(videosArray)
-          
-          // Charger les reviews pour chaque vidéo et calculer les moyennes
+
+          if (response.data.total_pages && response.data.current_page) {
+            setPagination({
+              totalPages: response.data.total_pages,
+              currentPage: response.data.current_page
+            });
+          }
+
           const videosWithRatingsData = await Promise.all(
             videosArray.map(async (video) => {
               try {
                 const reviewsResponse = await getReviewsByVideo(video.id)
-                const reviews = reviewsResponse.success && reviewsResponse.data 
+                const reviews = reviewsResponse.success && reviewsResponse.data
                   ? (Array.isArray(reviewsResponse.data) ? reviewsResponse.data : [])
                   : []
-                
+
                 const averageRating = reviews.length > 0
                   ? reviews.reduce((sum, review) => sum + (review.value || 0), 0) / reviews.length
                   : 0
-                
+
                 return {
                   ...video,
                   averageRating: Number(averageRating.toFixed(1)),
                   ratingCount: reviews.length
                 }
-              } catch (err) {
-                console.warn(`Erreur lors du chargement des reviews pour la vidéo ${video.id}:`, err)
+              } catch {
                 return {
                   ...video,
                   averageRating: 0,
@@ -120,10 +111,9 @@ const Homepage = ({ onCardClick, reloadTrigger = 0, searchCriteria = { searchTer
               }
             })
           )
-          
+
           setVideosWithRatings(videosWithRatingsData)
-          
-          // Si aucun résultat et qu'il y a des critères de recherche
+
           if (videosArray.length === 0 && (hasSearchTerm || hasCategory)) {
             setError('Aucune vidéo trouvée avec ces critères.')
           }
@@ -131,14 +121,13 @@ const Homepage = ({ onCardClick, reloadTrigger = 0, searchCriteria = { searchTer
           setError(response.message || (hasSearchTerm || hasCategory ? 'Aucune vidéo trouvée avec ces critères.' : 'Aucune vidéo trouvée.'))
         }
       } catch (error) {
-        console.error('Erreur lors du chargement des vidéos:', error)
         setError(error.message || 'Erreur lors du chargement des vidéos.')
       } finally {
         setLoading(false)
       }
     }
     loadVideos()
-  }, [reloadTrigger, searchCriteria.searchTerm, searchCriteria.categoryId])
+  }, [reloadTrigger, searchCriteria.searchTerm, searchCriteria.categoryId, currentPage])
 
   const handleCardClick = (video) => {
     if (onCardClick) {
@@ -146,6 +135,10 @@ const Homepage = ({ onCardClick, reloadTrigger = 0, searchCriteria = { searchTer
     } else {
       navigate(`/video/${video.id}`)
     }
+  }
+
+  const handlePageChange = (page) => {
+    setPagination({currentPage: page})
   }
 
   if (loading) {
@@ -168,7 +161,7 @@ const Homepage = ({ onCardClick, reloadTrigger = 0, searchCriteria = { searchTer
     )
   }
 
-  const hasSearchCriteria = (searchCriteria.searchTerm && searchCriteria.searchTerm.trim() !== '') || 
+  const hasSearchCriteria = (searchCriteria.searchTerm && searchCriteria.searchTerm.trim() !== '') ||
                             (searchCriteria.categoryId && searchCriteria.categoryId !== 'all')
 
   return (
@@ -192,6 +185,13 @@ const Homepage = ({ onCardClick, reloadTrigger = 0, searchCriteria = { searchTer
           ))
         )}
       </div>
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+      )}
     </section>
   )
 }
