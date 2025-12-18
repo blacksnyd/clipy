@@ -154,6 +154,7 @@ export const deleteVideo = async (req, res) => {
   try {
     const id = Number(req.params.id);
 
+    const video = await videosService.findById(id);
     
     if (!video) {
       return res.status(404).json({ 
@@ -162,7 +163,6 @@ export const deleteVideo = async (req, res) => {
       });
     }
     
-    const video = await videosService.findById(id);
     
     if (video.URL) {
       const videoPath = path.join(process.cwd(), video.URL);
