@@ -78,6 +78,7 @@ const Register = ({ onClose, onSwitchToLogin }) => {
         username: formData.username.trim(),
         email: formData.email.trim(),
         password: formData.password,
+        confirm_password: formData.confirmPassword,
       }
 
       // Appeler le service d'inscription
