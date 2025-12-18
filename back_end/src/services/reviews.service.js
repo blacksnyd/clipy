@@ -25,12 +25,20 @@ const findReviewsByVideo = async (video_id) => {
 }
 
 const findReviewById = async (id) => {
-   const [rows] = await db.pool.execute(
-      'SELECT * FROM ratings WHERE id = ?',
-      [id]
-   );
-   return rows[0] || null;
+  const [rows] = await db.pool.execute(
+    'SELECT * FROM ratings WHERE id = ?',
+    [id]
+  );
+  return rows[0] || null;
 }
 
-export default { createReview, deleteReview, findReviewsByVideo, findReviewById };
+const findReviewByUserAndVideo = async (user_id, video_id) => {
+  const [rows] = await db.pool.execute(
+    'SELECT * FROM ratings WHERE user_id = ? AND video_id = ?',
+    [user_id, video_id]
+  );
+  return rows[0] || null;
+}
+
+export default { createReview, deleteReview, findReviewsByVideo, findReviewById, findReviewByUserAndVideo };
 
