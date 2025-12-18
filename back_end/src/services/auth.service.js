@@ -6,13 +6,9 @@ import env from '../config/db_config.js';
 
 export async function register ({username, email, password}) {
 
-    if (!username || !email || !password) {
-        const error = new Error("Email et mot de passe obligatoires");
-        error.status= 400;
-        throw error;
-    }
-
+    
     const hash = await bcrypt.hash(password, 10);
+
     const [result] = await db.pool.execute(
         `INSERT INTO users (username, email, password_hash) VALUES(?,?,?)`,
         [username, email, hash]
@@ -23,6 +19,8 @@ export async function register ({username, email, password}) {
         email
     }
 };
+    
+
 
 export async function login ({email, password}) {
     
