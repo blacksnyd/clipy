@@ -61,7 +61,7 @@ const SearchBar = ({ onSearchChange }) => {
 
       <input
         type="search"
-        placeholder="Rechercher une catégorie ou une vidéo…"
+        placeholder="Rechercher une vidéo ..."
         className="w-full bg-transparent py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
