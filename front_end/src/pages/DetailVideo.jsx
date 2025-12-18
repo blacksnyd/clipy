@@ -10,6 +10,7 @@ import {
   getReviewsByVideo,
   createReview,
 } from '../services/reviews.service';
+import { isAuthenticated, getUserId } from '../services/auth.service';
 import ModalBase from '../components/modals/ModalBase';
 import ModalUpdate from '../components/modals/ModalUpdate';
 import editIcon from '../assets/editor-icone.png';
@@ -27,8 +28,11 @@ const DetailVideo = () => {
   const [submitting, setSubmitting] = useState(false);
   const [commentError, setCommentError] = useState('');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [hasUserRated, setHasUserRated] = useState(false);
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+  const authenticated = isAuthenticated();
+  const userId = getUserId();
 
   useEffect(() => {
     const loadVideoData = async () => {
@@ -58,6 +62,15 @@ const DetailVideo = () => {
           const reviewsResponse = await getReviewsByVideo(id);
           if (reviewsResponse.success && reviewsResponse.data) {
             setReviews(reviewsResponse.data);
+            
+            // Vérifier si l'utilisateur connecté a déjà noté cette vidéo
+            if (authenticated && userId) {
+              const currentUserId = parseInt(userId);
+              const userHasRated = reviewsResponse.data.some(
+                review => parseInt(review.user_id) === currentUserId
+              );
+              setHasUserRated(userHasRated);
+            }
           }
         } catch (reviewsError) {
           console.warn(
@@ -100,6 +113,12 @@ const DetailVideo = () => {
 
   const handleSubmitComment = async (event) => {
     event.preventDefault();
+    
+    if (!authenticated) {
+      setCommentError('Vous devez être connecté pour commenter.');
+      return;
+    }
+    
     if (!commentText.trim()) {
       setCommentError('Merci de saisir un commentaire.');
       return;
@@ -130,15 +149,27 @@ const DetailVideo = () => {
         setCommentError(commentResponse?.message || "Erreur lors de l'envoi du commentaire.");
       }
     } catch (err) {
-      setCommentError(
-        err?.message || "Erreur lors de l'envoi du commentaire."
-      );
+      let errorMessage = err?.message || "Erreur lors de l'envoi du commentaire.";
+      if (err?.message?.includes('401') || err?.message?.includes('authentifié')) {
+        errorMessage = 'Vous devez être connecté pour commenter.';
+      }
+      setCommentError(errorMessage);
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleSubmitRating = async () => {
+    if (!authenticated) {
+      setCommentError('Vous devez être connecté pour noter.');
+      return;
+    }
+    
+    if (hasUserRated) {
+      setCommentError('Vous avez déjà noté cette vidéo.');
+      return;
+    }
+    
     if (!rating || rating <= 0) {
       return;
     }
@@ -158,13 +189,22 @@ const DetailVideo = () => {
         const reviewsResponse = await getReviewsByVideo(id);
         if (reviewsResponse.success && reviewsResponse.data) {
           setReviews(reviewsResponse.data);
+          // Marquer que l'utilisateur a maintenant noté
+          setHasUserRated(true);
         }
         setRating(0);
+      } else {
+        setCommentError(reviewResponse?.message || "Erreur lors de l'envoi de la note.");
       }
     } catch (err) {
-      setCommentError(
-        err?.message || "Erreur lors de l'envoi de la note."
-      );
+      let errorMessage = err?.message || "Erreur lors de l'envoi de la note.";
+      if (err?.message?.includes('401') || err?.message?.includes('authentifié')) {
+        errorMessage = 'Vous devez être connecté pour noter.';
+      } else if (err?.message?.includes('déjà noté')) {
+        errorMessage = 'Vous avez déjà noté cette vidéo.';
+        setHasUserRated(true);
+      }
+      setCommentError(errorMessage);
     } finally {
       setSubmitting(false);
     }
@@ -236,65 +276,80 @@ const DetailVideo = () => {
           </p>
 
           <div className="flex flex-col gap-3 rounded-xl bg-slate-50 p-4">
-            <div className="flex items-center gap-3">
-              <Rating
-                style={{ maxWidth: 140 }}
-                value={rating}
-                onChange={setRating}
-                items={5}
-              />
-              <span className="text-sm text-slate-700">
-                Ta note : {rating || '-'} / 5
-              </span>
-              {rating > 0 && (
-                <button
-                  type="button"
-                  onClick={handleSubmitRating}
-                  disabled={submitting}
-                  className="ml-auto border border-transparent btn-sky btn-sky-sm"
-                >
-                  {submitting ? 'Envoi...' : 'Noter'}
-                </button>
-              )}
-            </div>
             <span className="inline-flex min-w-[96px] items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-600 text-center">
               {average} / 5
             </span>
+            
+            {authenticated && hasUserRated ? (
+              <p className="text-sm text-slate-500 italic">
+                Vous avez déjà noté cette vidéo
+              </p>
+            ) : authenticated && !hasUserRated ? (
+              <div className="flex items-center gap-3">
+                <Rating
+                  style={{ maxWidth: 140 }}
+                  value={rating}
+                  onChange={setRating}
+                  items={5}
+                />
+                <span className="text-sm text-slate-700">
+                  Ta note : {rating || '-'} / 5
+                </span>
+                {rating > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleSubmitRating}
+                    disabled={submitting}
+                    className="ml-auto border border-transparent btn-sky btn-sky-sm"
+                  >
+                    {submitting ? 'Envoi...' : 'Noter'}
+                  </button>
+                )}
+              </div>
+            ) : null}
           </div>
 
-          <form
-            onSubmit={handleSubmitComment}
-            className="flex flex-col gap-3 rounded-xl bg-slate-50 p-4"
-          >
-            <label className="text-sm font-medium text-slate-800">
-              Ajouter un commentaire
-            </label>
-            <textarea
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              className="min-h-[80px] w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 resize-none"
-              placeholder="Partage ton avis sur la vidéo"
-            />
-            {commentError ? (
-              <span className="text-sm text-rose-600">{commentError}</span>
-            ) : null}
-            <div className="flex justify-end items-center gap-3">
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
-              >
-                Annuler
-              </button>
-              <button
-                type="submit"
-                disabled={submitting || !commentText.trim()}
-                className="border border-transparent btn-sky btn-sky-lg"
-              >
-                {submitting ? 'Envoi...' : 'Envoyer'}
-              </button>
+          {!authenticated ? (
+            <div className="flex flex-col gap-3 rounded-xl bg-slate-50 p-4">
+              <p className="text-sm text-slate-500 italic">
+                Connectez-vous pour noter la vidéo ou ajouter un commentaire
+              </p>
             </div>
-          </form>
+          ) : (
+            <form
+              onSubmit={handleSubmitComment}
+              className="flex flex-col gap-3 rounded-xl bg-slate-50 p-4"
+            >
+              <label className="text-sm font-medium text-slate-800">
+                Ajouter un commentaire
+              </label>
+              <textarea
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                className="min-h-[80px] w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 resize-none"
+                placeholder="Partage ton avis sur la vidéo"
+              />
+              {commentError ? (
+                <span className="text-sm text-rose-600">{commentError}</span>
+              ) : null}
+              <div className="flex justify-end items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting || !commentText.trim()}
+                  className="border border-transparent btn-sky btn-sky-lg"
+                >
+                  {submitting ? 'Envoi...' : 'Envoyer'}
+                </button>
+              </div>
+            </form>
+          )}
         </div>
       </div>
 

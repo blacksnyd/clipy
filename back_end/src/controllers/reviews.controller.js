@@ -33,6 +33,15 @@ export const createReview = async (req, res) => {
          });
       }
 
+      // Vérifier si l'utilisateur a déjà noté cette vidéo
+      const existingReview = await reviewsService.findReviewByUserAndVideo(user_id, video_id);
+      if (existingReview) {
+         return res.status(400).json({
+         success: false,
+         message: 'Vous avez déjà noté cette vidéo'
+         });
+      }
+
       const reviewId = await reviewsService.createReview(rating, content || null, video_id, user_id);
 
       res.status(201).json({
