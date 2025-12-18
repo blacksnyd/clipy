@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-const Login = ({ onClose }) => {
+const Login = ({ onClose, onSwitchToRegister }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -65,6 +65,17 @@ const Login = ({ onClose }) => {
         </button>
         <button type="submit" className="btn-sky btn-sky-md">
           Se connecter
+        </button>
+      </div>
+
+      <div className="text-center text-sm text-slate-600">
+        Pas de compte ?{' '}
+        <button
+          type="button"
+          onClick={onSwitchToRegister}
+          className="font-semibold text-sky-600 transition hover:text-sky-700 cursor-pointer"
+        >
+          Créer un compte
         </button>
       </div>
     </form>

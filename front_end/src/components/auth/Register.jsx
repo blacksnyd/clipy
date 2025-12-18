@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { register } from '../../services/auth.service'
 
-const Register = ({ onClose }) => {
+const Register = ({ onClose, onSwitchToLogin }) => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -204,6 +204,17 @@ const Register = ({ onClose }) => {
           className="btn-sky btn-sky-md disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? 'Création en cours...' : 'Créer mon compte'}
+        </button>
+      </div>
+
+      <div className="text-center text-sm text-slate-600">
+        Déjà un compte ?{' '}
+        <button
+          type="button"
+          onClick={onSwitchToLogin}
+          className="font-semibold text-sky-600 transition hover:text-sky-700 cursor-pointer"
+        >
+          Se connecter
         </button>
       </div>
     </form>
