@@ -22,7 +22,7 @@ export async function registerController(req, res, next) {
 export async function loginController (req, res, next) {
     
     try {
-        // const {username, email ,password} = req.body;
+        const {username} = req.body;
 
         const user = await login(req.validated)
 
