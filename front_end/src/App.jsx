@@ -7,6 +7,8 @@ import DetailVideo from './pages/DetailVideo'
 import Homepage from './pages/Homepage'
 import ModalCreate from './components/ModalCreate'
 import ModalBase from './components/ModalBase'
+import { makeCloseModalHandler, makeOpenModalHandler, makeVideoCreatedHandler } from './utils/modal.utils'
+import { makeSearchChangeHandler } from './utils/search.utils'
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -16,22 +18,10 @@ function App() {
     categoryId: 'all'
   })
 
-  const handleOpenModal = () => {
-    setIsModalOpen(true)
-  }
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false)
-  }
-
-  const handleVideoCreated = () => {
-    // Déclencher le rechargement des vidéos
-    setReloadTrigger(prev => prev + 1)
-  }
-
-  const handleSearchChange = (criteria) => {
-    setSearchCriteria(criteria)
-  }
+  const handleOpenModal = makeOpenModalHandler(setIsModalOpen)
+  const handleCloseModal = makeCloseModalHandler(setIsModalOpen)
+  const handleVideoCreated = makeVideoCreatedHandler(setReloadTrigger)
+  const handleSearchChange = makeSearchChangeHandler(setSearchCriteria)
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">
