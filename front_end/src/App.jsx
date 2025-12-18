@@ -8,12 +8,14 @@ import Homepage from './pages/Homepage'
 import ModalCreate from './components/modals/ModalCreate'
 import ModalBase from './components/modals/ModalBase'
 import Register from './components/auth/Register'
+import Login from './components/auth/Login'
 import { makeCloseModalHandler, makeOpenModalHandler, makeVideoCreatedHandler } from './utils/modal.utils'
 import { makeSearchChangeHandler } from './utils/search.utils'
 
 function App() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const [reloadTrigger, setReloadTrigger] = useState(0)
   const [searchCriteria, setSearchCriteria] = useState({
     searchTerm: '',
@@ -24,6 +26,8 @@ function App() {
   const handleCloseCreateModal = makeCloseModalHandler(setIsCreateModalOpen)
   const handleOpenRegisterModal = makeOpenModalHandler(setIsRegisterModalOpen)
   const handleCloseRegisterModal = makeCloseModalHandler(setIsRegisterModalOpen)
+  const handleOpenLoginModal = makeOpenModalHandler(setIsLoginModalOpen)
+  const handleCloseLoginModal = makeCloseModalHandler(setIsLoginModalOpen)
   const handleVideoCreated = makeVideoCreatedHandler(setReloadTrigger)
   const handleSearchChange = makeSearchChangeHandler(setSearchCriteria)
 
@@ -33,6 +37,7 @@ function App() {
         onOpenModal={handleOpenCreateModal}
         onSearchChange={handleSearchChange}
         onOpenRegister={handleOpenRegisterModal}
+        onOpenLogin={handleOpenLoginModal}
       />
       <main className="flex flex-1">
         <Routes>
@@ -41,6 +46,10 @@ function App() {
         </Routes>
       </main>
       <Footer />
+
+      <ModalBase isOpen={isLoginModalOpen} onClose={handleCloseLoginModal}>
+        <Login onClose={handleCloseLoginModal} />
+      </ModalBase>
 
       <ModalBase isOpen={isRegisterModalOpen} onClose={handleCloseRegisterModal}>
         <Register onClose={handleCloseRegisterModal} />
