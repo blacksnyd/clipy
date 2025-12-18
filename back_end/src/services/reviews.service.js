@@ -1,9 +1,9 @@
 import db from "../config/db_pool.js";
 
-const createReview = async (rating, content, video_id) => {
+const createReview = async (rating, content, video_id, user_id) => {
    const [result] = await db.pool.execute(
-    'INSERT INTO ratings (value, video_id) VALUES (?, ?)',
-    [rating, video_id]
+    'INSERT INTO ratings (value, video_id, user_id) VALUES (?, ?, ?)',
+    [rating, video_id, user_id]
    );
    return result.insertId;
 }

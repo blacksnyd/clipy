@@ -92,14 +92,15 @@ const destroy =  async (id) => {
 
 const create = async (data, video_url, cover_url, duration_rounded) => {
   const [result] = await db.pool.execute(
-    "INSERT INTO videos (title, URL, cover, duration, description, category_id) VALUES (?, ?, ?, ?, ?, ?)",
+    "INSERT INTO videos (title, URL, cover, duration, description, category_id, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
     [
       data.title,
       video_url,
       cover_url ?? null,
       duration_rounded,
       data.description,
-      data.category_id ?? null
+      data.category_id ?? null,
+      data.user_id
     ]
   );
 
@@ -110,7 +111,8 @@ const create = async (data, video_url, cover_url, duration_rounded) => {
     cover: cover_url,
     duration: duration_rounded,
     description: data.description,
-    category_id: data.category_id
+    category_id: data.category_id,
+    user_id: data.user_id
   };
 };
 

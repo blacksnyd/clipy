@@ -3,6 +3,7 @@ import commentsService from '../services/comments.service.js';
 export const createComment = async (req, res) => {
   try {
       const { content, video_id } = req.body;
+      const user_id = req.payload?.sub;
 
       if (!content || !video_id) {
          return res.status(400).json({
@@ -18,7 +19,14 @@ export const createComment = async (req, res) => {
          });
       }
 
-      const commentId = await commentsService.createComment(content, video_id);
+      if (!user_id) {
+         return res.status(401).json({
+         success: false,
+         message: 'Utilisateur non authentifié'
+         });
+      }
+
+      const commentId = await commentsService.createComment(content, video_id, user_id);
 
       res.status(201).json({
          success: true,

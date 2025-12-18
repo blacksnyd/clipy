@@ -1,9 +1,9 @@
 import db from "../config/db_pool.js";
 
-const createComment = async (content, video_id) => {
+const createComment = async (content, video_id, user_id) => {
    const [result] = await db.pool.execute(
-    'INSERT INTO comments (content, video_id) VALUES (?, ?)',
-    [content, video_id]
+    'INSERT INTO comments (content, video_id, user_id) VALUES (?, ?, ?)',
+    [content, video_id, user_id]
    );
    return result.insertId;
 }
@@ -18,7 +18,16 @@ const deleteComment = async (id) => {
 
 const findCommentsByVideo = async (video_id) => {
    const [rows] = await db.pool.execute(
-      'SELECT * FROM comments WHERE video_id = ?',
+      `SELECT 
+         c.id,
+         c.content,
+         c.video_id,
+         c.user_id,
+         u.username
+       FROM comments c
+       INNER JOIN users u ON c.user_id = u.id
+       WHERE c.video_id = ?
+       ORDER BY c.id DESC`,
       [video_id]
    );
    return rows;

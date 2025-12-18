@@ -317,7 +317,7 @@ const DetailVideo = () => {
                 >
                   <div className="flex items-center justify-between gap-2">
                     <div className="text-xs font-semibold text-slate-700">
-                      Utilisateur
+                      {comment.username || 'Utilisateur'}
                     </div>
                   </div>
                   <p className="mt-2 text-sm text-slate-800 leading-relaxed">
