@@ -3,6 +3,14 @@ import reviewsService from '../services/reviews.service.js';
 export const createReview = async (req, res) => {
   try {
       const { rating, content, video_id } = req.body;
+      const user_id = req.payload?.sub;
+
+      if (!user_id) {
+         return res.status(401).json({
+         success: false,
+         message: 'Utilisateur non authentifié'
+         });
+      }
 
       if (!rating || !video_id) {
          return res.status(400).json({
@@ -25,7 +33,7 @@ export const createReview = async (req, res) => {
          });
       }
 
-      const reviewId = await reviewsService.createReview(rating, content || null, video_id);
+      const reviewId = await reviewsService.createReview(rating, content || null, video_id, user_id);
 
       res.status(201).json({
          success: true,

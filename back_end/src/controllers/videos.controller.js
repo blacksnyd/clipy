@@ -207,6 +207,15 @@ export const create = async (req, res) => {
     const cover_file = req.files?.cover?.[0] ?? null;
 
     const category_id = req.body.category_id;
+    const user_id = req.payload?.sub;
+
+    // Vérifier que l'utilisateur est authentifié
+    if (!user_id) {
+      return res.status(401).json({
+        success: false,
+        message: "Vous devez être connecté pour créer une vidéo"
+      });
+    }
 
     if (category_id) {
       const categoryExists = await categoriesService.findById(category_id);
@@ -229,7 +238,13 @@ export const create = async (req, res) => {
     const duration = await getVideoDurationInSeconds(video_url);
     const duration_rounded = Math.ceil(duration);
 
-    const video = await videosService.create(req.body, video_url, cover_url, duration_rounded);
+    // Ajouter le user_id aux données de la vidéo
+    const videoData = {
+      ...req.body,
+      user_id: user_id
+    };
+
+    const video = await videosService.create(videoData, video_url, cover_url, duration_rounded);
 
     console.log("Succès vidéo créée :", video);
 
