@@ -53,6 +53,10 @@ export async function profileController (req, res, next) {
         })
 
     } catch (error) {
-        next(error);
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: 'Error getting user profile'
+        })
     }
 }
