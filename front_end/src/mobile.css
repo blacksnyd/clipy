@@ -119,6 +119,44 @@
   .flex.flex-col.gap-3.max-h-96 {
     max-height: none;
   }
+
+  /* Modales (Register & autres) */
+  .modal-overlay {
+    align-items: flex-start;
+    padding: 1rem;
+    overflow-y: auto;
+  }
+
+  .modal-panel {
+    margin-top: 1rem;
+    max-width: 520px;
+    width: 100%;
+    padding: 1rem !important;
+  }
+
+  .modal-panel form {
+    gap: 0.75rem;
+  }
+
+  .modal-panel h2 {
+    font-size: 1.15rem;
+    line-height: 1.4;
+  }
+
+  .modal-panel .text-sm {
+    font-size: 0.92rem;
+  }
+
+  /* Boutons des formulaires (Register/Login) en pleine largeur */
+  .modal-panel .flex.items-center.justify-end.gap-2 {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .modal-panel .flex.items-center.justify-end.gap-2 button {
+    width: 100%;
+  }
 }
 
 @media (max-width: 540px) {

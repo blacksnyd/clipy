@@ -204,7 +204,7 @@ const Register = ({ onClose, onSwitchToLogin }) => {
           disabled={loading}
           className="btn-sky btn-sky-md disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {loading ? 'Création en cours...' : 'Créer mon compte'}
+          {loading ? 'Création en cours...' : 'S\'inscrire'}
         </button>
       </div>
 
