@@ -1,13 +1,32 @@
-const API_URL=import.meta.env.VITE_API_URL||'http://localhost:3000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
-export async function request(path, options={}) {
+//Récupère le token depuis le localStorage
+function getToken() {
+    return localStorage.getItem('token');
+}
+
+//Effectue une requête HTTP avec gestion automatique du token et des headers
+export async function request(path, options = {}) {
+    const token = getToken();
+    const headers = {
+        ...options.headers,
+    };
+
+    // Ne pas ajouter Content-Type pour FormData (le navigateur le gère automatiquement)
+    const isFormData = options.body instanceof FormData;
+    if (!isFormData && !headers['Content-Type']) {
+        headers['Content-Type'] = 'application/json';
+    }
+
+    // Ajouter le token si disponible (sauf pour les routes d'authentification)
+    if (token && !path.includes('/auth/')) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch(`${API_URL}/api${path}`, {
-        headers: {
-          "Content-Type": "application/json",
-          ...options.headers,
-        },  
-        ...options, 
-      });
+        headers,
+        ...options,
+    });
 
     if (!response.ok) {
         let error;
@@ -18,7 +37,7 @@ export async function request(path, options={}) {
             const text = await response.text();
             error = {
                 success: false,
-                message: `Erreur ${response.status}: ${text.substring(0, 100)}`
+                message: `Erreur ${response.status}: ${text.substring(0, 100)}`,
             };
         }
         throw error;
