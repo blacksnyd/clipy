@@ -131,7 +131,7 @@
     margin-top: 1rem;
     max-width: 520px;
     width: 100%;
-    padding: 1rem !important;
+    padding: 0.75rem !important;
   }
 
   .modal-panel form {
@@ -147,6 +147,13 @@
     font-size: 0.92rem;
   }
 
+  /* Form containers en pleine largeur et padding réduit */
+  .modal-panel .w-full.max-w-3xl {
+    max-width: 100%;
+    width: 100%;
+    padding: 0.75rem;
+  }
+
   /* Boutons des formulaires (Register/Login) en pleine largeur */
   .modal-panel .flex.items-center.justify-end.gap-2 {
     flex-direction: column-reverse;
@@ -155,6 +162,17 @@
   }
 
   .modal-panel .flex.items-center.justify-end.gap-2 button {
+    width: 100%;
+  }
+
+  /* Boutons Form (Create video) pleine largeur et primaire en haut */
+  .modal-panel .flex.flex-wrap.items-center.justify-end.gap-3 {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .modal-panel .flex.flex-wrap.items-center.justify-end.gap-3 button {
     width: 100%;
   }
 }
