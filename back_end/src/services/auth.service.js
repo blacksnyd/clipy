@@ -54,3 +54,21 @@ export async function login ({email, password}) {
         user: { id: user.id, email: user.email, username: user.username},
     };
 }
+
+export async function getProfile (id) {
+    const [rows] = await db.pool.execute(
+        "SELECT username, email FROM users WHERE id = ?",
+        [id]
+    );
+
+    const user = rows[0];
+
+    if(!user){
+        const error = new Error("Nonexistent user");
+        error.status = 401;
+        throw error;
+    }
+
+    return user;
+
+}

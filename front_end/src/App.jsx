@@ -8,31 +8,43 @@ import Homepage from './pages/Homepage'
 import ModalCreate from './components/modals/ModalCreate'
 import ModalBase from './components/modals/ModalBase'
 import Register from './components/auth/Register'
-import { makeCloseModalHandler, makeOpenModalHandler, makeVideoCreatedHandler } from './utils/modal.utils'
+import Login from './components/auth/Login'
+import { makeVideoCreatedHandler } from './utils/modal.utils'
 import { makeSearchChangeHandler } from './utils/search.utils'
 
 function App() {
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false)
+  const [activeModal, setActiveModal] = useState(null)
   const [reloadTrigger, setReloadTrigger] = useState(0)
   const [searchCriteria, setSearchCriteria] = useState({
     searchTerm: '',
     categoryId: 'all'
   })
 
-  const handleOpenCreateModal = makeOpenModalHandler(setIsCreateModalOpen)
-  const handleCloseCreateModal = makeCloseModalHandler(setIsCreateModalOpen)
-  const handleOpenRegisterModal = makeOpenModalHandler(setIsRegisterModalOpen)
-  const handleCloseRegisterModal = makeCloseModalHandler(setIsRegisterModalOpen)
+  const handleOpenModal = (modalName) => () => setActiveModal(modalName)
+  const handleCloseModal = () => setActiveModal(null)
   const handleVideoCreated = makeVideoCreatedHandler(setReloadTrigger)
   const handleSearchChange = makeSearchChangeHandler(setSearchCriteria)
+
+  const renderModalContent = () => {
+    if (activeModal === 'login') {
+      return <Login onClose={handleCloseModal} onSwitchToRegister={handleOpenModal('register')} />
+    }
+    if (activeModal === 'register') {
+      return <Register onClose={handleCloseModal} onSwitchToLogin={handleOpenModal('login')} />
+    }
+    if (activeModal === 'create') {
+      return <ModalCreate videoId={null} onClose={handleCloseModal} onVideoCreated={handleVideoCreated} />
+    }
+    return null
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">
       <Header
-        onOpenModal={handleOpenCreateModal}
+        onOpenModal={handleOpenModal('create')}
         onSearchChange={handleSearchChange}
-        onOpenRegister={handleOpenRegisterModal}
+        onOpenRegister={handleOpenModal('register')}
+        onOpenLogin={handleOpenModal('login')}
       />
       <main className="flex flex-1">
         <Routes>
@@ -42,13 +54,11 @@ function App() {
       </main>
       <Footer />
 
-      <ModalBase isOpen={isRegisterModalOpen} onClose={handleCloseRegisterModal}>
-        <Register onClose={handleCloseRegisterModal} />
-      </ModalBase>
-
-      <ModalBase isOpen={isCreateModalOpen} onClose={handleCloseCreateModal}>
-        <ModalCreate videoId={null} onClose={handleCloseCreateModal} onVideoCreated={handleVideoCreated} />
-      </ModalBase>
+      {activeModal && (
+        <ModalBase isOpen onClose={handleCloseModal}>
+          {renderModalContent()}
+        </ModalBase>
+      )}
     </div>
   )
 }
