@@ -29,6 +29,7 @@ const DetailVideo = () => {
   const [commentError, setCommentError] = useState('');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [hasUserRated, setHasUserRated] = useState(false);
+  const [userRating, setUserRating] = useState(0);
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
   const authenticated = isAuthenticated();
@@ -66,10 +67,13 @@ const DetailVideo = () => {
             // Vérifier si l'utilisateur connecté a déjà noté cette vidéo
             if (authenticated && userId) {
               const currentUserId = parseInt(userId);
-              const userHasRated = reviewsResponse.data.some(
+              const userReview = reviewsResponse.data.find(
                 review => parseInt(review.user_id) === currentUserId
               );
-              setHasUserRated(userHasRated);
+              if (userReview) {
+                setHasUserRated(true);
+                setUserRating(userReview.value || 0);
+              }
             }
           }
         } catch (reviewsError) {
@@ -110,6 +114,11 @@ const DetailVideo = () => {
       reviews.length;
     return Number(mean.toFixed(1));
   }, [reviews]);
+
+  // Vérifier si l'utilisateur est le propriétaire de la vidéo
+  const isVideoOwner = useMemo(() => {
+    return authenticated && userId && video && parseInt(video.user_id) === parseInt(userId);
+  }, [authenticated, userId, video]);
 
   const handleSubmitComment = async (event) => {
     event.preventDefault();
@@ -189,8 +198,18 @@ const DetailVideo = () => {
         const reviewsResponse = await getReviewsByVideo(id);
         if (reviewsResponse.success && reviewsResponse.data) {
           setReviews(reviewsResponse.data);
-          // Marquer que l'utilisateur a maintenant noté
-          setHasUserRated(true);
+          
+          // Trouver la note de l'utilisateur et mettre à jour l'état
+          if (authenticated && userId) {
+            const currentUserId = parseInt(userId);
+            const userReview = reviewsResponse.data.find(
+              review => parseInt(review.user_id) === currentUserId
+            );
+            if (userReview) {
+              setHasUserRated(true);
+              setUserRating(userReview.value || 0);
+            }
+          }
         }
         setRating(0);
       } else {
@@ -262,12 +281,14 @@ const DetailVideo = () => {
               <h1 className="text-2xl font-semibold text-slate-900">
                 {video.title || 'Sans titre'}
               </h1>
-              <button 
-                onClick={() => setIsEditModalOpen(true)}
-                className="rounded-lg transition hover:scale-110 ml-auto cursor-pointer"
-              >
-                <img src={editIcon} alt="edit" className="w-6 h-6" />
-              </button>
+              {isVideoOwner && (
+                <button 
+                  onClick={() => setIsEditModalOpen(true)}
+                  className="rounded-lg transition hover:scale-110 ml-auto cursor-pointer"
+                >
+                  <img src={editIcon} alt="edit" className="w-6 h-6" />
+                </button>
+              )}
             </div>
           </div>
 
@@ -281,9 +302,18 @@ const DetailVideo = () => {
             </span>
             
             {authenticated && hasUserRated ? (
-              <p className="text-sm text-slate-500 italic">
-                Vous avez déjà noté cette vidéo
-              </p>
+              <div className="flex items-center gap-3">
+                <Rating
+                  style={{ maxWidth: 140 }}
+                  value={userRating}
+                  onChange={() => {}} // Désactivé en lecture seule
+                  items={5}
+                  readOnly
+                />
+                <span className="text-sm text-slate-700">
+                  Ta note : {userRating} / 5
+                </span>
+              </div>
             ) : authenticated && !hasUserRated ? (
               <div className="flex items-center gap-3">
                 <Rating

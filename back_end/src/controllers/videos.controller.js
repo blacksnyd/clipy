@@ -110,10 +110,25 @@ export const show = async (req, res) => {
 
 export const updateVideo = async (req,res) => {
   const id = Number(req.params.id);
+  const user_id = req.payload?.sub;
 
   try {
     if (isNaN(id)) {
       return res.status(400).json({ success: false, message: "ID invalide"})
+    }
+
+    // Récupérer la vidéo actuelle pour vérifier le propriétaire
+    const currentVideo = await videosService.findById(id);
+    if (!currentVideo) {
+      return res.status(404).json({ success: false, message: "Vidéo non trouvée" });
+    }
+
+    // Vérifier que l'utilisateur est le propriétaire de la vidéo
+    if (parseInt(currentVideo.user_id) !== parseInt(user_id)) {
+      return res.status(403).json({ 
+        success: false, 
+        message: "Vous n'êtes pas autorisé à modifier cette vidéo" 
+      });
     }
 
     const cover_file = req.files?.cover?.[0] ?? null;
@@ -122,12 +137,6 @@ export const updateVideo = async (req,res) => {
     // Si une nouvelle cover est fournie
     if (cover_file) {
       cover_url = `uploads/covers/${cover_file.filename}`;
-    }
-
-    // Récupérer la vidéo actuelle pour préserver les valeurs non modifiées
-    const currentVideo = await videosService.findById(id);
-    if (!currentVideo) {
-      return res.status(404).json({ success: false, message: "Vidéo non trouvée" });
     }
 
     const updateData = {
@@ -155,6 +164,7 @@ export const updateVideo = async (req,res) => {
 export const deleteVideo = async (req, res) => {
   try {
     const id = Number(req.params.id);
+    const user_id = req.payload?.sub;
 
     const video = await videosService.findById(id);
 
@@ -162,6 +172,14 @@ export const deleteVideo = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "Vidéo introuvable"
+      });
+    }
+
+    // Vérifier que l'utilisateur est le propriétaire de la vidéo
+    if (parseInt(video.user_id) !== parseInt(user_id)) {
+      return res.status(403).json({
+        success: false,
+        message: "Vous n'êtes pas autorisé à supprimer cette vidéo"
       });
     }
 
