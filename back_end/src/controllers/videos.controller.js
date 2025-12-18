@@ -1,5 +1,7 @@
 import videosService from '../services/videos.service.js';
 import categoriesService from "../services/categories.service.js";
+import fs from "fs";
+import path from "path"; 
 
 
 import {getVideoDurationInSeconds} from 'get-video-duration';
@@ -7,7 +9,9 @@ import {getVideoDurationInSeconds} from 'get-video-duration';
 export const all = async (req, res) => {
   try {
 
-    const videos = await videosService.findAll();
+    const result = await videosService.findAll();
+    // findAll retourne un objet avec pagination, on extrait le tableau de vidéos
+    const videos = result.videos || [];
     res.status(200).json({
       success: true,
       data: videos
@@ -151,6 +155,30 @@ export const updateVideo = async (req,res) => {
 export const deleteVideo = async (req, res) => {
   try {
     const id = Number(req.params.id);
+
+    const video = await videosService.findById(id);
+    
+    if (!video) {
+      return res.status(404).json({ 
+        success: false,
+        message: "Vidéo introuvable" 
+      });
+    }
+    
+    
+    if (video.URL) {
+      const videoPath = path.join(process.cwd(), video.URL);
+      fs.unlink(videoPath, (err) => {
+        if (err) console.error("Erreur suppression vidéo :", err);
+      });
+    }
+
+    if (video.cover) {
+      const coverPath = path.join(process.cwd(), video.cover);
+      fs.unlink(coverPath, (err) => {
+        if (err) console.error("Erreur suppression cover :", err);
+      });
+    }
 
     if (isNaN(id)) {
       return res.status(400).json({
