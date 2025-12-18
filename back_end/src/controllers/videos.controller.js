@@ -1,17 +1,17 @@
 import videosService from '../services/videos.service.js';
 import categoriesService from "../services/categories.service.js";
 import fs from "fs";
-import path from "path"; 
+import path from "path";
 
 
 import {getVideoDurationInSeconds} from 'get-video-duration';
 
 export const all = async (req, res) => {
   try {
-
-    const result = await videosService.findAll();
+    const page = req.query.page;
+    const result = await videosService.findAll(page);
     // findAll retourne un objet avec pagination, on extrait le tableau de vidéos
-    const videos = result.videos || [];
+    const videos = result || [];
     res.status(200).json({
       success: true,
       data: videos
@@ -157,15 +157,15 @@ export const deleteVideo = async (req, res) => {
     const id = Number(req.params.id);
 
     const video = await videosService.findById(id);
-    
+
     if (!video) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: "Vidéo introuvable" 
+        message: "Vidéo introuvable"
       });
     }
-    
-    
+
+
     if (video.URL) {
       const videoPath = path.join(process.cwd(), video.URL);
       fs.unlink(videoPath, (err) => {

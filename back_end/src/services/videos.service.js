@@ -5,6 +5,7 @@ export const findAll = async (page = 1, limit = 10) => {
   limit = Math.min(parseInt(limit), 10);
   const offset = (page - 1) * limit;
 
+
   const [rows] = await db.pool.execute(`SELECT * FROM videos LIMIT ${limit} OFFSET ${offset}`);
 
   const [count] = await db.pool.execute('SELECT COUNT(*) AS total FROM videos');
