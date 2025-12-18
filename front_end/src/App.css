@@ -41,3 +41,12 @@ body {
   @apply px-4 py-2.5 text-sm;
 }
 
+/* Curseur par défaut sur tous les boutons */
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
