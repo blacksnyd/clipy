@@ -1,5 +1,5 @@
 import db from '../config/db_pool.js';
-import { register, login } from '../services/auth.service.js';
+import { register, login, getProfile } from '../services/auth.service.js';
 import { success } from 'zod';
 
 
@@ -34,5 +34,29 @@ export async function loginController (req, res, next) {
     } catch (error) {
         console.error('erreur lors de la récupération du compte', error);
         next(error);
+    }
+}
+
+export async function profileController (req, res, next) {
+    try {
+        const payload = req.payload;
+        // console.log(payload);
+        const userID = payload.sub;
+
+        const user = await getProfile(userID);
+        console.log(user);
+        
+        return res.status(200).json({
+            success: true,
+            message: 'Profile retreived',
+            data: user
+        })
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: 'Error getting user profile'
+        })
     }
 }
