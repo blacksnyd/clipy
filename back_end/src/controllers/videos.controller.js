@@ -9,7 +9,9 @@ import {getVideoDurationInSeconds} from 'get-video-duration';
 export const all = async (req, res) => {
   try {
 
-    const videos = await videosService.findAll();
+    const result = await videosService.findAll();
+    // findAll retourne un objet avec pagination, on extrait le tableau de vidéos
+    const videos = result.videos || [];
     res.status(200).json({
       success: true,
       data: videos

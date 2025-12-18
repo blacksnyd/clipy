@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { getAllCategories } from '../services/categories.service'
-import { createVideo } from '../services/videos.service'
-import { validateVideoFile, validateVideoPayload } from '../services/validation.service'
-import { makeInputChangeHandler, makeVideoFileHandler, makeImageFileHandler } from '../utils/form.utils'
-import Form from './Form'
+import { getAllCategories } from '../../services/categories.service'
+import { createVideo } from '../../services/videos.service'
+import { validateVideoFile, validateVideoPayload } from '../../services/validation.service'
+import { makeInputChangeHandler, makeVideoFileHandler, makeImageFileHandler } from '../../utils/form.utils'
+import Form from '../tools/Form'
 
 function ModalCreate({ onClose = null, onVideoCreated = null }) {
   const [formData, setFormData] = useState({

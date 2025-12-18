@@ -25,8 +25,10 @@ const Homepage = ({ onCardClick, reloadTrigger = 0, searchCriteria = { searchTer
         if (hasSearchTerm && hasCategory) {
           response = await getVideosByTitle(searchCriteria.searchTerm.trim())
           if (response.success && response.data) {
+            // S'assurer que response.data est un tableau
+            const videosArray = Array.isArray(response.data) ? response.data : []
             // Filtrer les résultats par catégorie côté frontend
-            const filteredVideos = response.data.filter(
+            const filteredVideos = videosArray.filter(
               video => video.category_id === parseInt(searchCriteria.categoryId)
             )
             setVideos(filteredVideos)
@@ -43,7 +45,9 @@ const Homepage = ({ onCardClick, reloadTrigger = 0, searchCriteria = { searchTer
               filteredVideos.map(async (video) => {
                 try {
                   const reviewsResponse = await getReviewsByVideo(video.id)
-                  const reviews = reviewsResponse.success && reviewsResponse.data ? reviewsResponse.data : []
+                  const reviews = reviewsResponse.success && reviewsResponse.data 
+                    ? (Array.isArray(reviewsResponse.data) ? reviewsResponse.data : [])
+                    : []
                   
                   const averageRating = reviews.length > 0
                     ? reviews.reduce((sum, review) => sum + (review.value || 0), 0) / reviews.length
@@ -84,14 +88,18 @@ const Homepage = ({ onCardClick, reloadTrigger = 0, searchCriteria = { searchTer
         }
         
         if (response.success && response.data) {
-          setVideos(response.data)
+          // S'assurer que response.data est un tableau (défense en profondeur)
+          const videosArray = Array.isArray(response.data) ? response.data : []
+          setVideos(videosArray)
           
           // Charger les reviews pour chaque vidéo et calculer les moyennes
           const videosWithRatingsData = await Promise.all(
-            response.data.map(async (video) => {
+            videosArray.map(async (video) => {
               try {
                 const reviewsResponse = await getReviewsByVideo(video.id)
-                const reviews = reviewsResponse.success && reviewsResponse.data ? reviewsResponse.data : []
+                const reviews = reviewsResponse.success && reviewsResponse.data 
+                  ? (Array.isArray(reviewsResponse.data) ? reviewsResponse.data : [])
+                  : []
                 
                 const averageRating = reviews.length > 0
                   ? reviews.reduce((sum, review) => sum + (review.value || 0), 0) / reviews.length
@@ -116,7 +124,7 @@ const Homepage = ({ onCardClick, reloadTrigger = 0, searchCriteria = { searchTer
           setVideosWithRatings(videosWithRatingsData)
           
           // Si aucun résultat et qu'il y a des critères de recherche
-          if (response.data.length === 0 && (hasSearchTerm || hasCategory)) {
+          if (videosArray.length === 0 && (hasSearchTerm || hasCategory)) {
             setError('Aucune vidéo trouvée avec ces critères.')
           }
         } else {
