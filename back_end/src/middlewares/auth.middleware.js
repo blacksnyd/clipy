@@ -6,20 +6,18 @@ import db from '../config/db_pool.js';
 
 export async function authenticate(req, res, next) {
     try {
-        const authorization = req.headers.authorization;
-        const token = authorization.replace('Bearer ','');
-        if(!token){
+        const auth = req.headers.authorization;
+        if(!auth || !auth.startsWith("Bearer ")){
             return res.status(401).json({
-                error: "pas de token"
+                error: "User not authenticated"
             })
         }
+
+        const token = auth.slice(7);
+
         const payload = jwt.verify(token, env.JWT_SECRET);
-        const [rows] = await db.pool.execute("SELECT id, email FROM users WHERE id =?", [payload.sub]);
-        if(!rows[0]) {
-            return res.status(401).json({error: 'user inexistant'});
-        }
-        
-        req.user = rows[0];
+        req.payload = payload;
+        // console.log(payload);
         next();
         
     } catch (error) {
