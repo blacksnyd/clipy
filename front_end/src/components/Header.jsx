@@ -1,9 +1,18 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import SearchBar from './SearchBar';
+import { isAuthenticated, logout } from '../services/auth.service';
 import logo from '../assets/logo.png';
 
 const Header = ({ onOpenModal, onSearchChange, onOpenRegister, onOpenLogin}) => {
+  const authenticated = isAuthenticated();
+
+  const handleLogout = () => {
+    logout();
+    // Recharger la page pour mettre à jour l'interface
+    window.location.reload();
+  };
+
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 md:flex-row md:items-center md:justify-between">
@@ -22,19 +31,35 @@ const Header = ({ onOpenModal, onSearchChange, onOpenRegister, onOpenLogin}) => 
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="btn-sky btn-sky-md" onClick={onOpenRegister} type="button">
-            S&apos;inscrire
-          </button>
-          <button className="btn-sky btn-sky-md" onClick={onOpenLogin} type="button">
-            Se connecter
-          </button>
-          <button
-            className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70"
-            onClick={onOpenModal}
-            type="button"
-          >
-            Importer
-          </button>
+          {!authenticated && (
+            <>
+              <button className="btn-sky btn-sky-md" onClick={onOpenRegister} type="button">
+                S&apos;inscrire
+              </button>
+              <button className="btn-sky btn-sky-md" onClick={onOpenLogin} type="button">
+                Se connecter
+              </button>
+            </>
+          )}
+          
+          {authenticated && (
+            <>
+              <button
+                className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70"
+                onClick={onOpenModal}
+                type="button"
+              >
+                Importer
+              </button>
+              <button
+                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+                onClick={handleLogout}
+                type="button"
+              >
+                Déconnexion
+              </button>
+            </>
+          )}
         </div>
       </div>
     </header>
