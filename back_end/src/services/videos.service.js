@@ -1,10 +1,25 @@
 import db from '../config/db_pool.js';
 
+export const findAll = async (page = 1, limit = 10) => {
+  page = Math.max(parseInt(page), 1);
+  limit = Math.min(parseInt(limit), 10);
+  const offset = (page - 1) * limit;
 
-const findAll = async () => {
-  const [rows] = await db.pool.execute('SELECT * FROM videos');
-  return rows;
+  const [rows] = await db.pool.execute(`SELECT * FROM videos LIMIT ${limit} OFFSET ${offset}`);
+
+  const [count] = await db.pool.execute('SELECT COUNT(*) AS total FROM videos');
+  const total = count[0].total;
+  const total_pages = Math.ceil(total / limit);
+
+  return {
+    total,
+    total_pages,
+    current_page: page,
+    videos: rows
+  };
 };
+
+
 
 const findById = async (id) => {
   const [rows] = await db.pool.execute(
@@ -58,22 +73,21 @@ const destroy =  async (id) => {
     "DELETE FROM comments WHERE video_id = ?",
     [id]
   );
-  
+
   // Supprimer ensuite les ratings associés à la vidéo
   await db.pool.execute(
     "DELETE FROM ratings WHERE video_id = ?",
     [id]
   );
-  
+
   // Enfin, supprimer la vidéo
   const [rows] = await db.pool.execute(
     "DELETE FROM videos WHERE id = ?",
     [id]
   );
-  
+
   return rows.affectedRows;
 }
-
 
 const create = async (data, video_url, cover_url, duration_rounded) => {
   const [result] = await db.pool.execute(
@@ -84,7 +98,7 @@ const create = async (data, video_url, cover_url, duration_rounded) => {
       cover_url ?? null,
       duration_rounded,
       data.description,
-      data.category_id
+      data.category_id ?? null
     ]
   );
 
@@ -98,7 +112,6 @@ const create = async (data, video_url, cover_url, duration_rounded) => {
     category_id: data.category_id
   };
 };
-
 
 
 export default {findAll, findById, update, destroy, create, findByTitle, findByCategory}

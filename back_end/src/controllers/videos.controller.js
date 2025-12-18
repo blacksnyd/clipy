@@ -1,5 +1,3 @@
-import { success } from "zod";
-import db from "../config/db_pool.js";
 import videosService from '../services/videos.service.js';
 import categoriesService from "../services/categories.service.js";
 import fs from "fs";
