@@ -95,9 +95,9 @@ const Register = ({ onClose, onSwitchToLogin }) => {
           confirmPassword: '',
         })
 
-        // Fermer la modal après 2 secondes pour laisser le temps de voir le message de succès
+        // Bascule automatique vers le login
         setTimeout(() => {
-          onClose?.()
+          onSwitchToLogin?.()
         }, 2000)
       } else {
         setError(response.message || 'Une erreur est survenue lors de l\'inscription.')
