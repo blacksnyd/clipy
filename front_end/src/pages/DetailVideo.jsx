@@ -13,6 +13,7 @@ const DetailVideo = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  /* ===================== STATES ===================== */
   const [video, setVideo] = useState(null);
   const [comments, setComments] = useState([]);
   const [reviews, setReviews] = useState([]);
@@ -26,17 +27,24 @@ const DetailVideo = () => {
   const [hasUserRated, setHasUserRated] = useState(false);
   const [userRating, setUserRating] = useState(0);
 
+  /* ===================== REFS ===================== */
   const bgVideoRef = useRef(null);
   const mainVideoRef = useRef(null);
 
+  /* ===================== CONSTANTS ===================== */
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
   const authenticated = isAuthenticated();
   const userId = getUserId();
 
+  // ⭐ TAILLE UNIQUE DES ÉTOILES
+  const RATING_STYLE = { maxWidth: 140 };
+
+  /* ===================== LOAD DATA ===================== */
   useEffect(() => {
     const loadVideoData = async () => {
       try {
         setLoading(true);
+
         const videoResponse = await getVideoById(id);
         if (!videoResponse.success) throw new Error('Vidéo non trouvée');
         setVideo(videoResponse.data);
@@ -56,7 +64,9 @@ const DetailVideo = () => {
         }
 
         const commentsResponse = await getCommentsByVideo(id);
-        if (commentsResponse.success) setComments(commentsResponse.data);
+        if (commentsResponse.success) {
+          setComments(commentsResponse.data);
+        }
       } catch (err) {
         setError(err.message || 'Erreur lors du chargement');
       } finally {
@@ -67,6 +77,7 @@ const DetailVideo = () => {
     loadVideoData();
   }, [id]);
 
+  /* ===================== COMPUTED ===================== */
   const average = useMemo(() => {
     if (!reviews.length) return 0;
     return (
@@ -78,14 +89,46 @@ const DetailVideo = () => {
     return authenticated && video && parseInt(video.user_id) === parseInt(userId);
   }, [authenticated, video, userId]);
 
-  const handlePlay = () => {
-    bgVideoRef.current?.play();
+  /* ===================== VIDEO SYNC ===================== */
+  const handlePlay = () => bgVideoRef.current?.play();
+  const handlePause = () => bgVideoRef.current?.pause();
+
+  /* ===================== COMMENT ===================== */
+  const handleSubmitComment = async (e) => {
+    e.preventDefault();
+
+    if (!authenticated) {
+      setCommentError('Vous devez être connecté pour commenter.');
+      return;
+    }
+
+    if (!commentText.trim()) {
+      setCommentError('Merci de saisir un commentaire.');
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      await createComment({
+        video_id: parseInt(id),
+        content: commentText.trim(),
+      });
+
+      const commentsResponse = await getCommentsByVideo(id);
+      if (commentsResponse.success) {
+        setComments(commentsResponse.data);
+      }
+
+      setCommentText('');
+      setCommentError('');
+    } catch {
+      setCommentError("Erreur lors de l'envoi du commentaire.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handlePause = () => {
-    bgVideoRef.current?.pause();
-  };
-
+  /* ===================== UI STATES ===================== */
   if (loading) {
     return (
       <div className="flex flex-1 items-center justify-center bg-slate-50">
@@ -104,6 +147,7 @@ const DetailVideo = () => {
 
   const videoUrl = video.URL ? `${API_URL}/${video.URL}` : null;
 
+  /* ===================== RENDER ===================== */
   return (
     <div className="flex flex-1 flex-col bg-slate-50">
       <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-8 lg:grid-cols-[2fr_1fr]">
@@ -112,7 +156,6 @@ const DetailVideo = () => {
         <div className="relative overflow-hidden rounded-2xl shadow-sm ring-1 ring-slate-200">
           {videoUrl && (
             <>
-              {/* Background flouté */}
               <video
                 ref={bgVideoRef}
                 src={videoUrl}
@@ -123,7 +166,6 @@ const DetailVideo = () => {
                 aria-hidden
               />
 
-              {/* Vidéo principale */}
               <video
                 ref={mainVideoRef}
                 src={videoUrl}
@@ -150,32 +192,95 @@ const DetailVideo = () => {
 
           <p className="text-slate-700">{video.description}</p>
 
-          <div className="rounded-xl bg-slate-50 p-4">
+          <div className="rounded-xl bg-slate-50 p-4 space-y-2">
             <span className="rounded-full bg-slate-100 px-3 py-1 text-sm">
               {average} / 5
             </span>
 
             {authenticated && hasUserRated && (
-              <Rating value={userRating} readOnly style={{ maxWidth: 140 }} />
+              <Rating
+                value={userRating}
+                readOnly
+                style={RATING_STYLE}
+              />
             )}
 
             {authenticated && !hasUserRated && (
-              <div className="flex items-center gap-3 mt-2">
-                <Rating value={rating} onChange={setRating} />
+              <div className="flex items-center gap-3">
+                <Rating
+                  value={rating}
+                  onChange={setRating}
+                  style={RATING_STYLE}
+                />
                 {rating > 0 && (
-                  <button onClick={async () => {
-                    await createReview({ video_id: id, rating });
-                    window.location.reload();
-                  }} className="btn-sky btn-sky-sm">
+                  <button
+                    onClick={async () => {
+                      await createReview({ video_id: id, rating });
+                      window.location.reload();
+                    }}
+                    className="btn-sky btn-sky-sm"
+                  >
                     Noter
                   </button>
                 )}
               </div>
             )}
           </div>
+
+          {/* ADD COMMENT */}
+          {authenticated ? (
+            <form onSubmit={handleSubmitComment} className="flex flex-col gap-3">
+              <textarea
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder="Ajouter un commentaire..."
+                className="min-h-[80px] rounded-lg border border-slate-200 p-2 text-sm"
+              />
+              {commentError && (
+                <span className="text-sm text-rose-600">{commentError}</span>
+              )}
+              <button
+                type="submit"
+                disabled={submitting}
+                className="self-end btn-sky btn-sky-sm"
+              >
+                {submitting ? 'Envoi...' : 'Envoyer'}
+              </button>
+            </form>
+          ) : (
+            <p className="text-sm italic text-slate-500">
+              Connectez-vous pour commenter
+            </p>
+          )}
         </div>
       </div>
 
+      {/* COMMENT LIST */}
+      <div className="mx-auto w-full max-w-6xl px-4 pb-8">
+        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+          <h2 className="mb-4 text-lg font-semibold">
+            Commentaires ({comments.length})
+          </h2>
+
+          <div className="flex flex-col gap-3 max-h-96 overflow-y-auto">
+            {comments.map((comment) => (
+              <div
+                key={comment.id || comment._id}
+                className="rounded-lg bg-slate-50 p-3 ring-1 ring-slate-100"
+              >
+                <p className="text-xs font-semibold text-slate-700">
+                  {comment.username || 'Utilisateur'}
+                </p>
+                <p className="text-sm text-slate-800">
+                  {comment.content}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* MODAL */}
       <ModalBase isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
         <ModalUpdate
           videoId={id}
