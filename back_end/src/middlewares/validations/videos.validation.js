@@ -7,19 +7,3 @@ export const createVideoSchema = z.object({
   .nonempty("La description ne peut pas être vide"),
   category_id: z.coerce.number().min(1, "Vous devez sélectionner une catégorie")
 });
-
-export const validate = (schema) => (req, res, next) => {
-  try {
-    schema.parse(req.body);
-    next();
-  } catch (err) {
-    if (err instanceof z.ZodError) {
-      const messages = Object.values(err.flatten().fieldErrors).flat();
-      return res.status(400).json({
-        success: false,
-        message: messages
-      });
-    }
-    next(err);
-  }
-};

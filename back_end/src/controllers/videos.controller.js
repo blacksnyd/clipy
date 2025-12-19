@@ -125,9 +125,9 @@ export const updateVideo = async (req,res) => {
 
     // Vérifier que l'utilisateur est le propriétaire de la vidéo
     if (parseInt(currentVideo.user_id) !== parseInt(user_id)) {
-      return res.status(403).json({ 
-        success: false, 
-        message: "Vous n'êtes pas autorisé à modifier cette vidéo" 
+      return res.status(403).json({
+        success: false,
+        message: "Vous n'êtes pas autorisé à modifier cette vidéo"
       });
     }
 
@@ -262,7 +262,7 @@ export const create = async (req, res) => {
       user_id: user_id
     };
 
-    const video = await videosService.create(videoData, video_url, cover_url, duration_rounded);
+    const video = await videosService.create(req.validated, video_url, cover_url, duration_rounded);
 
     console.log("Succès vidéo créée :", video);
 
