@@ -262,7 +262,7 @@ export const create = async (req, res) => {
       user_id: user_id
     };
 
-    const video = await videosService.create(req.validated, video_url, cover_url, duration_rounded);
+    const video = await videosService.create(videoData, video_url, cover_url, duration_rounded);
 
     console.log("Succès vidéo créée :", video);
 
