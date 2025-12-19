@@ -15,9 +15,39 @@ export const removeToken = () => {
     localStorage.removeItem('token');
 };
 
-//Vérifie si l'utilisateur est connecté
+//Vérifie si le token est expiré
+const isTokenExpired = (token) => {
+    if (!token) return true;
+    
+    try {
+        const payload = token.split('.')[1];
+        if (!payload) return true;
+        
+        const decodedPayload = JSON.parse(atob(payload));
+        const exp = decodedPayload.exp;
+        
+        if (!exp) return false; // Pas de date d'expiration, considéré comme valide
+        
+        // Vérifier si le token est expiré (exp est en secondes)
+        return Date.now() >= exp * 1000;
+    } catch (error) {
+        console.error('Erreur lors de la vérification du token:', error);
+        return true; // En cas d'erreur, considérer comme expiré
+    }
+};
+
+//Vérifie si l'utilisateur est connecté et si le token n'est pas expiré
 export const isAuthenticated = () => {
-    return !!getToken();
+    const token = getToken();
+    if (!token) return false;
+    
+    // Si le token est expiré, le supprimer et retourner false
+    if (isTokenExpired(token)) {
+        removeToken();
+        return false;
+    }
+    
+    return true;
 };
 
 //Récupère l'ID utilisateur depuis le token JWT

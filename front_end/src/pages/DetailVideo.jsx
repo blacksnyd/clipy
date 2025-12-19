@@ -248,7 +248,8 @@ const DetailVideo = () => {
                 <button
                   type="button"
                   onClick={handleCancel}
-                  className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                  disabled={!commentText.trim()}
+                  className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
                 >
                   Annuler
                 </button>
