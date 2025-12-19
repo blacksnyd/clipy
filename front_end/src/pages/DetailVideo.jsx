@@ -197,8 +197,8 @@ const DetailVideo = () => {
 
           <p className="text-slate-700">{video.description}</p>
 
-          <div className="rounded-xl bg-slate-100 p-4 space-y-4">
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-sm block mb-1">
+          <div className="rounded-xl bg-slate-50 p-4 space-y-4">
+            <span className="rounded-full bg-slate-200 px-3 py-1 text-sm inline-block mb-1">
               {average} / 5
             </span>
 
