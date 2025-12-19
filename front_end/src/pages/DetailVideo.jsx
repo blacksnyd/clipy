@@ -262,11 +262,27 @@ const DetailVideo = () => {
     <div className="flex flex-1 flex-col items-stretch bg-slate-50">
       <div className="mx-auto grid w-full max-w-6xl flex-1 gap-8 px-4 py-8 lg:grid-cols-[2fr_1fr]">
         {/* Zone vidéo */}
-        <div className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+        <div className="relative flex flex-col overflow-hidden rounded-2xl shadow-sm ring-1 ring-slate-200">
           {videoUrl ? (
-            <video className="h-full w-full" controls src={videoUrl}>
-              Votre navigateur ne supporte pas la lecture de vidéos.
-            </video>
+            <>
+              {/* Background flouté (remplace les bandes noires) */}
+              <video
+                className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl opacity-60"
+                src={videoUrl}
+                autoPlay
+                muted
+                playsInline
+                aria-hidden="true"
+                tabIndex={-1} />
+
+              {/* Vidéo principale */}
+              <video
+                className="relative z-10 w-full max-h-[600px] object-contain"
+                controls
+                src={videoUrl}>
+                Votre navigateur ne supporte pas la lecture de vidéos.
+              </video>
+            </>
           ) : (
             <div className="flex h-96 items-center justify-center bg-slate-200">
               <p className="text-slate-500">Vidéo non disponible</p>
