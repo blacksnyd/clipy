@@ -128,6 +128,11 @@ const DetailVideo = () => {
     }
   };
 
+  const handleCancel = () => {
+    setCommentText('');
+    setCommentError('');
+  };
+
   /* ===================== UI STATES ===================== */
   if (loading) {
     return (
@@ -239,13 +244,22 @@ const DetailVideo = () => {
               {commentError && (
                 <span className="text-sm text-rose-600">{commentError}</span>
               )}
-              <button
-                type="submit"
-                disabled={submitting}
-                className="self-end btn-sky btn-sky-sm"
-              >
-                {submitting ? 'Envoi...' : 'Envoyer'}
-              </button>
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting || !commentText.trim()}
+                  className="btn-sky btn-sky-sm"
+                >
+                  {submitting ? 'Envoi...' : 'Envoyer'}
+                </button>
+              </div>
             </form>
           ) : (
             <p className="text-sm italic text-slate-500">
