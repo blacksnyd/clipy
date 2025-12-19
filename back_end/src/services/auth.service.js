@@ -6,7 +6,7 @@ import env from '../config/db_config.js';
 
 export async function register ({username, email, password}) {
 
-    
+
     const hash = await bcrypt.hash(password, 10);
 
     const [result] = await db.pool.execute(
@@ -19,14 +19,14 @@ export async function register ({username, email, password}) {
         email
     }
 };
-    
+
 
 
 export async function login ({email, password}) {
-    
+
     const [rows] = await db.pool.execute(
         'SELECT * FROM users WHERE email = ?', [email]);
-    
+
     const user = rows[0];
 
     if (!user) {
