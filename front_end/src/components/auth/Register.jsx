@@ -19,56 +19,56 @@ const Register = ({ onClose, onSwitchToLogin }) => {
     if (error) setError('')
   }
 
-  const validateForm = () => {
-    // Vérifier que tous les champs sont remplis
-    if (!formData.username.trim()) {
-      setError('Le nom d\'utilisateur est obligatoire.')
-      return false
-    }
+  // const validateForm = () => {
+  //   // Vérifier que tous les champs sont remplis
+  //   if (!formData.username.trim()) {
+  //     setError('Le nom d\'utilisateur est obligatoire.')
+  //     return false
+  //   }
 
-    if (!formData.email.trim()) {
-      setError('L\'email est obligatoire.')
-      return false
-    }
+  //   if (!formData.email.trim()) {
+  //     setError('L\'email est obligatoire.')
+  //     return false
+  //   }
 
-    // Validation basique de l'email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(formData.email)) {
-      setError('Veuillez entrer un email valide.')
-      return false
-    }
+  //   // Validation basique de l'email
+  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  //   if (!emailRegex.test(formData.email)) {
+  //     setError('Veuillez entrer un email valide.')
+  //     return false
+  //   }
 
-    if (!formData.password) {
-      setError('Le mot de passe est obligatoire.')
-      return false
-    }
+  //   if (!formData.password) {
+  //     setError('Le mot de passe est obligatoire.')
+  //     return false
+  //   }
 
-    // Vérifier la longueur du mot de passe
-    if (formData.password.length < 6) {
-      setError('Le mot de passe doit contenir au moins 6 caractères.')
-      return false
-    }
+  //   // Vérifier la longueur du mot de passe
+  //   if (formData.password.length < 6) {
+  //     setError('Le mot de passe doit contenir au moins 6 caractères.')
+  //     return false
+  //   }
 
-    // Vérifier que les mots de passe correspondent
-    if (formData.password !== formData.confirmPassword) {
-      setError('Les mots de passe ne correspondent pas.')
-      return false
-    }
+  //   // Vérifier que les mots de passe correspondent
+  //   if (formData.password !== formData.confirmPassword) {
+  //     setError('Les mots de passe ne correspondent pas.')
+  //     return false
+  //   }
 
-    return true
-  }
+  //   return true
+  // }
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    
+
     // Réinitialiser les messages
     setError('')
     setSuccess('')
 
     // Valider le formulaire
-    if (!validateForm()) {
-      return
-    }
+    // if (!validateForm()) {
+    //   return
+    // }
 
     setLoading(true)
 
@@ -84,9 +84,12 @@ const Register = ({ onClose, onSwitchToLogin }) => {
       // Appeler le service d'inscription
       const response = await register(userData)
 
+      console.log('Réponse API:', response)
+
       if (response.success) {
+
         setSuccess('Compte créé avec succès ! Vous pouvez maintenant vous connecter.')
-        
+
         // Réinitialiser le formulaire
         setFormData({
           username: '',
@@ -103,7 +106,6 @@ const Register = ({ onClose, onSwitchToLogin }) => {
         setError(response.message || 'Une erreur est survenue lors de l\'inscription.')
       }
     } catch (err) {
-      // Gérer les erreurs du serveur
       const errorMessage = err.message || err.error?.message || 'Une erreur est survenue lors de l\'inscription.'
       setError(errorMessage)
     } finally {
@@ -199,8 +201,8 @@ const Register = ({ onClose, onSwitchToLogin }) => {
         >
           Annuler
         </button>
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           disabled={loading}
           className="btn-sky btn-sky-md disabled:cursor-not-allowed disabled:opacity-50"
         >
