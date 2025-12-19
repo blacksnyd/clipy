@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import uploads from '../middlewares/uploads.middleware.js';
 import handle_upload from '../middlewares/handle_upload.middleware.js';
-import { createVideoSchema, validate } from "../middlewares/validations/videos.validation.js";
+import { createVideoSchema } from "../middlewares/validations/videos.validation.js";
+import { validate } from "../middlewares/validations/validate.js";
 import { authenticate } from '../middlewares/auth.middleware.js';
 
 import {all, show, create, deleteVideo, updateVideo, findVideoByTitle, findVideoByCategory} from '../controllers/videos.controller.js';

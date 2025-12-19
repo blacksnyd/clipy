@@ -14,13 +14,20 @@ export async function registerController(req, res, next) {
                 data: user
             })
         } catch (error) {
+          if (error.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({
+              success: false,
+              message: 'Nom d’utilisateur ou email déjà utilisé',
+              data: null
+            });
+          }
             console.error('erreur lors de la creation du compte', error);
             next(error);
         }
 };
 
 export async function loginController (req, res, next) {
-    
+
     try {
         const {username} = req.body;
 
@@ -45,7 +52,7 @@ export async function profileController (req, res, next) {
 
         const user = await getProfile(userID);
         console.log(user);
-        
+
         return res.status(200).json({
             success: true,
             message: 'Profile retreived',
