@@ -203,11 +203,16 @@ const DetailVideo = () => {
             </span>
 
             {authenticated && hasUserRated && (
-              <Rating
-                value={userRating}
-                readOnly
-                style={RATING_STYLE}
-              />
+              <div className="flex items-center gap-3">
+                <Rating
+                  value={userRating}
+                  readOnly
+                  style={RATING_STYLE}
+                />
+                <span className="text-sm font-semibold text-slate-700">
+                  Ma note : {userRating} / 5
+                </span>
+              </div>
             )}
 
             {authenticated && !hasUserRated && (
