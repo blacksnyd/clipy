@@ -58,7 +58,9 @@ const CardVideo = ({
 
         <div className="mt-auto flex items-center gap-2">
           <Rating style={{ maxWidth: 88 }} value={displayRating} items={5} readOnly />
-          <span className="text-xs text-slate-700">{displayRating.toFixed(1)} / 5</span>
+          <span className="text-xs text-slate-700">
+            {displayRating % 1 === 0 ? displayRating.toString() : displayRating.toFixed(1)} / 5
+          </span>
           {resolvedRatingCount ? (
             <span className="text-[11px] text-slate-500">({resolvedRatingCount})</span>
           ) : null}

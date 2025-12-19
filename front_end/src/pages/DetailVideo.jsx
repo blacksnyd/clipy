@@ -80,9 +80,9 @@ const DetailVideo = () => {
   /* ===================== COMPUTED ===================== */
   const average = useMemo(() => {
     if (!reviews.length) return 0;
-    return (
-      reviews.reduce((sum, r) => sum + (r.value || 0), 0) / reviews.length
-    ).toFixed(1);
+    const avg = reviews.reduce((sum, r) => sum + (r.value || 0), 0) / reviews.length;
+    // Si c'est un nombre entier, retourner sans décimales, sinon avec 1 décimale
+    return avg % 1 === 0 ? avg.toString() : avg.toFixed(1);
   }, [reviews]);
 
   const isVideoOwner = useMemo(() => {
