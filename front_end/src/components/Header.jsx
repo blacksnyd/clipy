@@ -4,7 +4,7 @@ import SearchBar from './SearchBar';
 import { isAuthenticated, logout } from '../services/auth.service';
 import logo from '../assets/logo.png';
 
-const Header = ({ onOpenModal, onSearchChange, onOpenRegister, onOpenLogin}) => {
+const Header = ({ onOpenModal, onSearchChange, onOpenRegister, onOpenLogin, onResetSearch}) => {
   const authenticated = isAuthenticated();
   const location = useLocation();
   const isDetailPage = location.pathname.startsWith('/video/');
@@ -27,7 +27,7 @@ const Header = ({ onOpenModal, onSearchChange, onOpenRegister, onOpenLogin}) => 
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
-          <Link to="/">
+          <Link to="/" onClick={onResetSearch}>
             <img
               src={logo}
               alt="Clipy"

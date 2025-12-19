@@ -26,6 +26,13 @@ function App() {
   const handleVideoCreated = makeVideoCreatedHandler(setReloadTrigger)
   const handleSearchChange = makeSearchChangeHandler(setSearchCriteria)
 
+  const handleResetSearch = () => {
+    setSearchCriteria({
+      searchTerm: '',
+      categoryId: 'all'
+    })
+  }
+
   const renderModalContent = () => {
     if (activeModal === 'login') {
       return <Login onClose={handleCloseModal} onSwitchToRegister={handleOpenModal('register')} />
@@ -46,6 +53,7 @@ function App() {
         onSearchChange={handleSearchChange}
         onOpenRegister={handleOpenModal('register')}
         onOpenLogin={handleOpenModal('login')}
+        onResetSearch={handleResetSearch}
       />
       <main className="flex flex-1">
         <Routes>
