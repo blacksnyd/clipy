@@ -269,7 +269,7 @@ const DetailVideo = () => {
             </form>
           ) : (
             <p className="text-sm italic text-slate-500">
-              Connectez-vous pour commenter
+              Connectez-vous pour noter ou commenter
             </p>
           )}
         </div>
