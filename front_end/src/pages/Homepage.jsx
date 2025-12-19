@@ -14,6 +14,11 @@ const Homepage = ({ onCardClick, reloadTrigger = 0, searchCriteria = { searchTer
   const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1 });
   const { currentPage, totalPages } = pagination;
 
+  // Réinitialiser la pagination à la page 1 quand les critères de recherche changent
+  useEffect(() => {
+    setPagination(prev => ({ ...prev, currentPage: 1 }))
+  }, [searchCriteria.searchTerm, searchCriteria.categoryId])
+
   useEffect(() => {
     const loadVideos = async () => {
       try {
@@ -32,6 +37,8 @@ const Homepage = ({ onCardClick, reloadTrigger = 0, searchCriteria = { searchTer
               video => video.category_id === parseInt(searchCriteria.categoryId)
             )
             setVideos(filteredVideos)
+            // Réinitialiser la pagination pour les recherches combinées (pas de pagination côté serveur)
+            setPagination({ currentPage: 1, totalPages: 1 })
             if (filteredVideos.length === 0) {
               setError('Aucune vidéo trouvée avec ces critères.')
               setVideosWithRatings([])
@@ -75,14 +82,33 @@ const Homepage = ({ onCardClick, reloadTrigger = 0, searchCriteria = { searchTer
         }
 
         if (response.success && response.data) {
-          const videosArray = Array.isArray(response.data.videos) ? response.data.videos : []
+          // Gérer les différents formats de réponse
+          let videosArray = []
+          if (Array.isArray(response.data)) {
+            videosArray = response.data
+            // Pour les recherches sans pagination, réinitialiser la pagination
+            setPagination({ currentPage: 1, totalPages: 1 })
+          } else if (response.data.videos) {
+            videosArray = Array.isArray(response.data.videos) ? response.data.videos : []
+            // Mettre à jour la pagination si disponible (uniquement pour getAllVideos)
+            if (response.data.total_pages && response.data.current_page) {
+              setPagination({
+                totalPages: response.data.total_pages,
+                currentPage: response.data.current_page
+              })
+            } else {
+              setPagination({ currentPage: 1, totalPages: 1 })
+            }
+          }
+          
           setVideos(videosArray)
-
-          if (response.data.total_pages && response.data.current_page) {
-            setPagination({
-              totalPages: response.data.total_pages,
-              currentPage: response.data.current_page
-            });
+          
+          // Si aucune vidéo trouvée lors d'une recherche, afficher un message d'erreur
+          if (videosArray.length === 0 && (hasSearchTerm || hasCategory)) {
+            setError('Aucune vidéo trouvée avec ces critères.')
+            setVideosWithRatings([])
+            setLoading(false)
+            return
           }
 
           const videosWithRatingsData = await Promise.all(
@@ -113,10 +139,6 @@ const Homepage = ({ onCardClick, reloadTrigger = 0, searchCriteria = { searchTer
           )
 
           setVideosWithRatings(videosWithRatingsData)
-
-          if (videosArray.length === 0 && (hasSearchTerm || hasCategory)) {
-            setError('Aucune vidéo trouvée avec ces critères.')
-          }
         } else {
           setError(response.message || (hasSearchTerm || hasCategory ? 'Aucune vidéo trouvée avec ces critères.' : 'Aucune vidéo trouvée.'))
         }
@@ -138,7 +160,7 @@ const Homepage = ({ onCardClick, reloadTrigger = 0, searchCriteria = { searchTer
   }
 
   const handlePageChange = (page) => {
-    setPagination({currentPage: page})
+    setPagination(prev => ({ ...prev, currentPage: page }))
   }
 
   if (loading) {
