@@ -1,8 +1,8 @@
 import db from '../config/db_pool.js';
 
-export const findAll = async (page = 1, limit = 10) => {
+export const findAll = async (page = 1, limit = 9) => {
   page = Math.max(parseInt(page), 1);
-  limit = Math.min(parseInt(limit), 10);
+  limit = Math.min(parseInt(limit), 9);
   const offset = (page - 1) * limit;
 
 
